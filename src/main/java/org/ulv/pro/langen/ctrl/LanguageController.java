@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.ulv.pro.langen.model.Course;
 import org.ulv.pro.langen.model.Language;
+import org.ulv.pro.langen.model.Lesson;
 import org.ulv.pro.langen.service.LanguageService;
 
 
@@ -41,5 +42,16 @@ public class LanguageController {
 	    headers.add("Content-Type", "application/json; charset=utf-8");
 	    
 		return new ResponseEntity<List<Course>>(courses, headers, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/lessons/{courseId}", headers="Accept=application/json")
+	public ResponseEntity<List<Lesson>> lessonsList(@PathVariable int courseId) {
+		
+		List<Lesson> lessons = languageService.getLessons(courseId);
+
+		HttpHeaders headers = new HttpHeaders();
+	    headers.add("Content-Type", "application/json; charset=utf-8");
+	    
+		return new ResponseEntity<List<Lesson>>(lessons, headers, HttpStatus.OK);
 	}
 }

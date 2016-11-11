@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.ulv.pro.langen.model.Course;
 import org.ulv.pro.langen.model.Language;
+import org.ulv.pro.langen.model.Lesson;
 
 @Component
 public class LanguageDao {
@@ -21,5 +22,9 @@ public class LanguageDao {
 	
 	public List<Course> getCourses(int languageId) {
 		return this.sqlSession.selectList("getCourses", languageId);
+	}
+	
+	public List<Lesson> getLessons(int courseId) {
+		return this.sqlSession.selectList("getLessons", courseId);
 	}
 }
