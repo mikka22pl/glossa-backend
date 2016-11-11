@@ -13,6 +13,11 @@
 		<result property="name" 	column="course_name" />
 	</resultMap>
 	
+	<resultMap id="lessonMap" type="Lesson">
+		<id     property="id"       column="id" />
+		<result property="name" 	column="lesson_name" />
+	</resultMap>
+	
 	<select id="getLanguage" resultMap="languageMap">
 		SELECT id, lang_name, code FROM languages
 	</select>
@@ -20,6 +25,11 @@
 	<select id="getCourses" parameterType="integer" resultMap="courseMap">
 		SELECT id, course_name FROM courses
 		WHERE language_id = #{value}
+	</select>
+	
+	<select id="getLessons" parameterType="integer" resultMap="lessonMap">
+		SELECT id, lesson_name FROM lessons
+		WHERE course_id = #{value}
 	</select>
 	
 </mapper>
