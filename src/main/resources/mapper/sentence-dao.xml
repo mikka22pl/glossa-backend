@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ulv.pro.langen.dao.SentenceDao">
+	
+	<resultMap id="sentenceMap" type="SentenceStructure">
+		<id     property="id"       	column="id" />
+		<result property="languageId" 	column="language_id" />
+		<result property="lessonId" 	column="lesson_id" />
+		<result property="ordering" 	column="ordering" />
+		<result property="type" 		column="type" />
+		
+		<association property="group" javaType="WordGroup">
+			<id     property="id"        	column="group_id" />
+			<result property="name" 		column="group_name" />
+			<result property="languageId" 	column="group_language_id" />
+		</association>
+	</resultMap>
+	
+	<select id="getSentenceStrucutres" parameterType="SentenceStructure" resultMap="sentenceMap">
+		SELECT 
+			s.id,
+			s.language_id,
+			s.lesson_id,
+			s.ordering,
+			g.id as group_id,
+			g.group_name,
+			g.language_id as group_language_id,
+			s.type
+		FROM sentence_structures s
+		JOIN word_groups g ON g.id = s.group_id
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="languageId != null">
+				AND s.language_id = #{languageId}
+			</if>
+			<if test="lessonId != null">
+				AND s.lesson_id = #{lessonId}
+			</if>
+		</trim>
+		ORDER BY s.ordering
+	</select>
+</mapper>

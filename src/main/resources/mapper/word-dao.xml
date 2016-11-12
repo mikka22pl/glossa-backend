@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ulv.pro.langen.dao.WordDao">
+	
+	<resultMap id="wordMap" type="Word">
+		<id     property="id"       	column="id" />
+		<result property="name" 		column="word" />
+		<result property="languageId" 	column="language_id" />
+		
+		<!-- <association property="group" javaType="WordGroup">
+			<id     property="id"        	column="group_id" />
+			<result property="name" 		column="group_name" />
+			<result property="languageId" 	column="group_language_id" />
+		</association> -->
+	</resultMap>
+	
+	<sql id="wordColumns"> 
+		${alias}.id,
+		${alias}.word, 
+		${alias}.language_id
+	</sql>
+	<!-- <sql id="groupColumns"> 
+		${alias}.id as group_id,
+		${alias}.group_name, 
+		${alias}.language_id as group_language_id
+	</sql> -->
+	<sql id="joinGroups">
+		JOIN word_group_assign ga ON ga.word_id = ${alias}.id 
+		JOIN word_groups g ON g.id = ga.group_id
+	</sql>
+	
+			<!-- ,
+			<include refid="groupColumns"><property name="alias" value="g"/></include> -->
+	<select id="getWordsByGroup" parameterType="WordGroup" resultMap="wordMap">
+		SELECT 
+			<include refid="wordColumns"><property name="alias" value="w"/></include>
+		FROM words w
+			<include refid="joinGroups"><property name="alias" value="w"/></include>
+		WHERE g.id = #{id}
+		AND g.language_id = #{languageId}
+	</select>
+</mapper>
