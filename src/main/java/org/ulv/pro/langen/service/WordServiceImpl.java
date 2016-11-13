@@ -23,4 +23,29 @@ public class WordServiceImpl implements WordService {
 		return wordDao.getWordsByGroup(group);
 	}
 
+	@Override
+	public List<Word> getWordsTop10(int languageId) {
+		Word word = new Word();
+		word.setLanguageId(languageId);
+		
+		return wordDao.getWordsTop10(word);
+	}
+
+	@Override
+	public List<Word> getWords(int languageId) {
+		Word word = new Word();
+		word.setLanguageId(languageId);
+		
+		return wordDao.getWords(word);
+	}
+
+	@Override
+	public void saveWord(Word word) {
+		if (word.isNew()) {
+			wordDao.addWord(word);
+		} else {
+			
+		}
+	}
+
 }
