@@ -70,6 +70,6 @@ public class SentenceServiceImpl implements SentenceService {
 	private int getRandom(int limit) {
 
 		Random rand = new Random();
-		return rand.nextInt(limit) + 1;
+		return rand.nextInt(limit);
 	}
 }
