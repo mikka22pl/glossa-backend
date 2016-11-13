@@ -6,6 +6,7 @@
 		<id     property="id"       	column="id" />
 		<result property="name" 		column="word" />
 		<result property="languageId" 	column="language_id" />
+		<result property="createdDate" 	column="created_date" />
 		
 		<!-- <association property="group" javaType="WordGroup">
 			<id     property="id"        	column="group_id" />
@@ -17,7 +18,8 @@
 	<sql id="wordColumns"> 
 		${alias}.id,
 		${alias}.word, 
-		${alias}.language_id
+		${alias}.language_id,
+		${alias}.created_date
 	</sql>
 	<!-- <sql id="groupColumns"> 
 		${alias}.id as group_id,
@@ -39,4 +41,45 @@
 		WHERE g.id = #{id}
 		AND g.language_id = #{languageId}
 	</select>
+	
+	<select id="getWordsTop10" parameterType="Word" resultMap="wordMap">
+		SELECT 
+			<include refid="wordColumns"><property name="alias" value="w"/></include>
+		FROM words w
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="id != null">
+				AND w.id = #{id}
+			</if>
+			<if test="name != null">
+				AND w.word = #{name}
+			</if>
+			<if test="languageId != null">
+				AND w.language_id = #{languageId}
+			</if>
+		</trim>
+		ORDER BY created_date DESC LIMIT 10
+	</select>
+	
+	<select id="getWords" parameterType="Word" resultMap="wordMap">
+		SELECT 
+			<include refid="wordColumns"><property name="alias" value="w"/></include>
+		FROM words w
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="id != null">
+				AND w.id = #{id}
+			</if>
+			<if test="name != null">
+				AND w.word = #{name}
+			</if>
+			<if test="languageId != null">
+				AND w.language_id = #{languageId}
+			</if>
+		</trim>
+		ORDER BY word
+	</select>
+	
+	<insert id="addWord" parameterType="Word">
+		INSERT INTO words (word, language_id)
+		VALUES (#{name}, #{languageId})
+	</insert>
 </mapper>

@@ -17,4 +17,16 @@ public class WordDao {
 	public List<Word> getWordsByGroup(WordGroup group) {
 		return sqlSession.selectList("getWordsByGroup", group);
 	}
+	
+	public List<Word> getWords(Word word) {
+		return sqlSession.selectList("getWords", word);
+	}
+	
+	public List<Word> getWordsTop10(Word word) {
+		return sqlSession.selectList("getWordsTop10", word);
+	}
+	
+	public void addWord(Word word) {
+		sqlSession.insert("addWord", word);
+	}
 }
