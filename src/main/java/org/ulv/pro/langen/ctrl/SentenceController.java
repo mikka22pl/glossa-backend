@@ -3,7 +3,6 @@ package org.ulv.pro.langen.ctrl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,11 +14,6 @@ import org.ulv.pro.langen.service.SentenceService;
 
 @RestController
 public class SentenceController {
-	
-	private static final HttpHeaders HEADERS = new HttpHeaders();
-	static {
-		HEADERS.add("Content-Type", "application/json; charset=utf-8");
-	}
 	
 	@Autowired
 	private SentenceService sentenceService;
@@ -35,7 +29,7 @@ public class SentenceController {
 		
 		List<SentenceStructure> structs = sentenceService.getSentenceStructures(struct);
 	    
-		return new ResponseEntity<List<SentenceStructure>>(structs, HEADERS, HttpStatus.OK);
+		return new ResponseEntity<List<SentenceStructure>>(structs, HeadersUtil.HEADERS, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/learn/{languageId}", headers="Accept=application/json")
@@ -44,6 +38,6 @@ public class SentenceController {
 		
 		BuildedSentence bsent = sentenceService.getSentence(languageId);
 	    
-		return new ResponseEntity<BuildedSentence>(bsent, HEADERS, HttpStatus.OK);
+		return new ResponseEntity<BuildedSentence>(bsent, HeadersUtil.HEADERS, HttpStatus.OK);
 	}
 }

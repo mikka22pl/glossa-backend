@@ -10,5 +10,6 @@
         <mapper resource="mapper/language-dao.xml"/>
         <mapper resource="mapper/sentence-dao.xml"/>
         <mapper resource="mapper/word-dao.xml"/>
+        <mapper resource="mapper/lexer-dao.xml"/>
     </mappers>
 </configuration>

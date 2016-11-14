@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ulv.pro.langen.dao.LexerDAO">
+
+	<cache eviction="FIFO" />
+	
+	<resultMap id="lexerMap" type="LexerItem">
+		<id     property="id"        	column="id" />
+		<result property="name" 		column="name" />
+		<result property="descr"        column="descr" />
+		<association property="category" javaType="Lexer">
+			<id     property="id"		column="category_id" />
+			<result property="name" 	column="category_name" />
+			<result property="descr"	column="category_descr" />
+		</association>
+	</resultMap>
+	
+	<resultMap id="categoryMap" type="Lexer">
+		<id     property="id"        	column="id" />
+		<result property="name" 		column="name" />
+		<result property="descr"        column="descr" />
+	</resultMap>
+
+	<sql id="lexerColumns"> 
+		${alias}.id,
+		${alias}.lex_name as name, 
+		${alias}.descr
+	</sql>
+	<sql id="categoryColumns"> 
+		${alias}.id as category_id,
+		${alias}.lex_name as category_name, 
+		${alias}.descr as category_descr
+	</sql>
+
+	<sql id="joinCategory">
+		JOIN lexers c ON ${alias}.parent_id = c.id
+	</sql>
+	
+	<select id="getLexers" resultMap="lexerMap" parameterType="Lexer" useCache="true">
+		SELECT 
+			<include refid="lexerColumns"><property name="alias" value="l"/></include>,
+			<include refid="categoryColumns"><property name="alias" value="c"/></include>
+		FROM lexers l 
+			<include refid="joinCategory"><property name="alias" value="l"/></include>
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="id != null"> AND c.id = #{id}</if>
+			<if test="category != null and category.name != null">
+				AND c.lex_name = #{category.name}
+			</if>
+			<if test="name != null">
+				AND l.lex_name = #{name}
+			</if>
+		</trim>
+	</select>
+	
+	<!-- <select id="findByNameOrDescr" resultMap="lexerMap" parameterType="Lexer" useCache="true">
+		SELECT 
+			<include refid="lexerColumns"><property name="alias" value="l"/></include>,
+			<include refid="categoryColumns"><property name="alias" value="c"/></include>
+			FROM lexers l 
+			<include refid="joinCategory"><property name="alias" value="l"/></include>
+		WHERE c.id = #{category.id}
+		AND (LOWER(l.pos_name) like LOWER(#{name}) OR LOWER(l.descr) like LOWER(#{name}))
+	</select> -->
+
+	<insert id="addLexer" parameterType="LexerItem" flushCache="true">
+		<selectKey keyProperty="id" keyColumn="id" order="AFTER" resultType="integer">
+			SELECT currval('lexers_id_seq') as id
+		</selectKey>
+		INSERT INTO lexers (lex_name, descr, parent_id)
+		VALUES (#{name}, #{descr}, #{category.id})
+	</insert>
+
+	<update id="updateLexer" parameterType="LexerItem" flushCache="true">
+		UPDATE lexers SET
+			lex_name = #{name},
+			descr = #{descr}
+		WHERE id = #{id}
+	</update>
+
+	<!-- category -->
+
+	<select id="getCategories" parameterType="Lexer" resultMap="lexerMap" useCache="true">
+		SELECT 
+			<include refid="lexerColumns"><property name="alias" value="l"/></include>
+		FROM lexers l
+		WHERE parent_id is null
+	</select>
+	
+	<insert id="addLexerCategory" parameterType="Lexer" flushCache="true">
+		<selectKey keyProperty="id" keyColumn="id" order="AFTER" resultType="integer">
+			SELECT currval('lexers_id_seq') as id
+		</selectKey>
+		INSERT INTO lexers (lex_name, descr)
+		VALUES (#{name}, #{descr})
+	</insert>
+
+	<update id="updateLexerCategory" parameterType="Lexer" flushCache="true">
+		UPDATE lexers SET
+			lex_name = #{name},
+			descr = #{descr}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>
