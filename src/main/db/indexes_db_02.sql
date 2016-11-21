@@ -3,7 +3,7 @@
 SELECT pg_catalog.setval('courses_id_seq', 4, true);
 SELECT pg_catalog.setval('languages_id_seq', 8, true);
 SELECT pg_catalog.setval('lessons_id_seq', 4, true);
-SELECT pg_catalog.setval('lexer_id_seq', 2, true);
+SELECT pg_catalog.setval('lexers_id_seq', 2, true);
 SELECT pg_catalog.setval('sentence_structures_id_seq', 4, true);
 SELECT pg_catalog.setval('users_id_seq', 1, false);
 SELECT pg_catalog.setval('word_groups_id_seq', 10, true);
@@ -20,8 +20,8 @@ ALTER TABLE ONLY languages
 ALTER TABLE ONLY lessons
     ADD CONSTRAINT lessons_pkey PRIMARY KEY (id);
 
-ALTER TABLE ONLY lexer
-    ADD CONSTRAINT lexer_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY lexers
+    ADD CONSTRAINT lexers_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY sentence_structures
     ADD CONSTRAINT sentence_structures_pkey PRIMARY KEY (id);
