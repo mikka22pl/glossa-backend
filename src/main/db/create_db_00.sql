@@ -51,19 +51,19 @@ CREATE SEQUENCE lessons_id_seq
 ALTER SEQUENCE lessons_id_seq OWNED BY lessons.id;
 
 
-CREATE TABLE lexer (
+CREATE TABLE lexers (
     id integer NOT NULL,
     lex_name character varying(40) NOT NULL,
     descr character varying(80),
     parent_id integer
 );
-CREATE SEQUENCE lexer_id_seq
+CREATE SEQUENCE lexers_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-ALTER SEQUENCE lexer_id_seq OWNED BY lexer.id;
+ALTER SEQUENCE lexers_id_seq OWNED BY lexers.id;
 
 
 
@@ -140,7 +140,7 @@ CREATE TABLE words_learning (
 ALTER TABLE ONLY courses ALTER COLUMN id SET DEFAULT nextval('courses_id_seq'::regclass);
 ALTER TABLE ONLY languages ALTER COLUMN id SET DEFAULT nextval('languages_id_seq'::regclass);
 ALTER TABLE ONLY lessons ALTER COLUMN id SET DEFAULT nextval('lessons_id_seq'::regclass);
-ALTER TABLE ONLY lexer ALTER COLUMN id SET DEFAULT nextval('lexer_id_seq'::regclass);
+ALTER TABLE ONLY lexers ALTER COLUMN id SET DEFAULT nextval('lexers_id_seq'::regclass);
 ALTER TABLE ONLY sentence_structures ALTER COLUMN id SET DEFAULT nextval('sentence_structures_id_seq'::regclass);
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 ALTER TABLE ONLY word_groups ALTER COLUMN id SET DEFAULT nextval('word_groups_id_seq'::regclass);
