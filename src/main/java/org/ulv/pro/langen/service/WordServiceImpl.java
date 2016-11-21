@@ -48,4 +48,9 @@ public class WordServiceImpl implements WordService {
 		}
 	}
 
+	@Override
+	public List<Word> getWordsWithGroups(Word word) {
+		return wordDao.getWordsWithGroups(word);
+	}
+
 }

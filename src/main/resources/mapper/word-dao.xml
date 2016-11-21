@@ -15,22 +15,48 @@
 		</association> -->
 	</resultMap>
 	
+	<resultMap id="wordGroupsMap" type="Word">
+		<id     property="id"       	column="id" />
+		<result property="name" 		column="word" />
+		<result property="languageId" 	column="language_id" />
+		<result property="createdDate" 	column="created_date" />
+		
+		<collection property="groups" ofType="WordGroup">
+			<id     property="id"        	column="group_id" />
+			<result property="name" 		column="group_name" />
+			<result property="languageId" 	column="group_language_id" />
+		</collection>
+	</resultMap>
+	
 	<sql id="wordColumns"> 
 		${alias}.id,
 		${alias}.word, 
 		${alias}.language_id,
 		${alias}.created_date
 	</sql>
-	<!-- <sql id="groupColumns"> 
+	<sql id="groupColumns"> 
 		${alias}.id as group_id,
 		${alias}.group_name, 
 		${alias}.language_id as group_language_id
-	</sql> -->
+	</sql>
 	<sql id="joinGroups">
 		JOIN word_group_assign ga ON ga.word_id = ${alias}.id 
 		JOIN word_groups g ON g.id = ga.group_id
 	</sql>
 	
+	<sql id="whereAll">
+		<trim prefix="WHERE" prefixOverrides="AND |OR ">
+			<if test="id != null">
+				AND ${alias}.id = #{id}
+			</if>
+			<if test="name != null">
+				AND ${alias}.word = #{name}
+			</if>
+			<if test="languageId != null">
+				AND ${alias}.language_id = #{languageId}
+			</if>
+		</trim>
+	</sql>
 			<!-- ,
 			<include refid="groupColumns"><property name="alias" value="g"/></include> -->
 	<select id="getWordsByGroup" parameterType="WordGroup" resultMap="wordMap">
@@ -76,6 +102,15 @@
 			</if>
 		</trim>
 		ORDER BY word
+	</select>
+	
+	<select id="getWordsWithGroups" parameterType="Word" resultMap="wordGroupsMap">
+		SELECT 
+			<include refid="wordColumns"><property name="alias" value="w"/></include>,
+			<include refid="groupColumns"><property name="alias" value="g"/></include>
+		FROM words w
+			<include refid="joinGroups"><property name="alias" value="w"/></include>
+		<include refid="whereAll"><property name="alias" value="w"/></include>
 	</select>
 	
 	<insert id="addWord" parameterType="Word">

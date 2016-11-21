@@ -29,4 +29,8 @@ public class WordDao {
 	public void addWord(Word word) {
 		sqlSession.insert("addWord", word);
 	}
+	
+	public List<Word> getWordsWithGroups(Word word) {
+		return sqlSession.selectList("getWordsWithGroups", word);
+	}
 }

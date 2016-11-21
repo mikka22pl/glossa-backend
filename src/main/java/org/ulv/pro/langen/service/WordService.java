@@ -12,5 +12,7 @@ public interface WordService {
 	
 	List<Word> getWords(int languageId);
 	
+	List<Word> getWordsWithGroups(Word word);
+	
 	void saveWord(Word word);
 }

@@ -3,7 +3,6 @@ package org.ulv.pro.langen.ctrl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +13,7 @@ import org.ulv.pro.langen.model.Word;
 import org.ulv.pro.langen.service.WordService;
 
 @RestController
+@RequestMapping("/glossa")
 public class WordController {
 
 	@Autowired
@@ -24,11 +24,8 @@ public class WordController {
 			@PathVariable int languageId) {
 		
 		List<Word> words = wordService.getWords(languageId);
-		
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Content-Type", "application/json; charset=utf-8");
 	    
-		return new ResponseEntity<List<Word>>(words, headers, HttpStatus.OK);
+		return new ResponseEntity<List<Word>>(words, HeadersUtil.HEADERS, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/words/{languageId:[\\d]+}/{groupId:[\\d]+}", headers="Accept=application/json")
@@ -37,11 +34,8 @@ public class WordController {
 			@PathVariable Integer groupId) {
 		
 		List<Word> words = wordService.getWordsByGroup(languageId, groupId);
-		
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Content-Type", "application/json; charset=utf-8");
 	    
-		return new ResponseEntity<List<Word>>(words, headers, HttpStatus.OK);
+		return new ResponseEntity<List<Word>>(words, HeadersUtil.HEADERS, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/words/top10/{languageId:[\\d]+}", headers="Accept=application/json")
@@ -49,15 +43,24 @@ public class WordController {
 			@PathVariable int languageId) {
 		
 		List<Word> words = wordService.getWordsTop10(languageId);
-		
-		HttpHeaders headers = new HttpHeaders();
-	    headers.add("Content-Type", "application/json; charset=utf-8");
 	    
-		return new ResponseEntity<List<Word>>(words, headers, HttpStatus.OK);
+		return new ResponseEntity<List<Word>>(words, HeadersUtil.HEADERS, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/addWord", headers="Accept=application/json")
 	public void saveWord(@RequestBody Word word) {
 		wordService.saveWord(word);
+	}
+	
+	@RequestMapping(value = "/words/group/{languageId:[\\d]+}", headers="Accept=application/json")
+	public ResponseEntity<List<Word>> wordsWithGroups(
+			@PathVariable int languageId) {
+		
+		Word word = new Word();
+		word.setLanguageId(languageId);
+		
+		List<Word> words = wordService.getWordsWithGroups(word);
+	    
+		return new ResponseEntity<List<Word>>(words, HeadersUtil.HEADERS, HttpStatus.OK);
 	}
 }
