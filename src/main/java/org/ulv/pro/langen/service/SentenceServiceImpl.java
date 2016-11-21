@@ -53,11 +53,11 @@ public class SentenceServiceImpl implements SentenceService {
 		return null;
 	}
 	
-	private SentenceWord getWord(WordGroup group, int ordering) {
+	public SentenceWord getWord(WordGroup group, int ordering) {
 
 		List<Word> words = wordDao.getWordsByGroup(group);
 		log.info("words.size()" + words.size());
-		int inx = getRandom(words.size()-1);
+		int inx = getRandom(words.size());
 		Word word = words.get(inx);
 		
 		SentenceWord sword = new SentenceWord();
@@ -70,6 +70,6 @@ public class SentenceServiceImpl implements SentenceService {
 	private int getRandom(int limit) {
 
 		Random rand = new Random();
-		return rand.nextInt(limit) + 1;
+		return rand.nextInt(limit);
 	}
 }

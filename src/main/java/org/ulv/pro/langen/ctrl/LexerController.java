@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,5 +42,14 @@ public class LexerController {
 		Integer id = lexerService.saveCategory(lexer);
 		
 		return new ResponseEntity<Integer>(id, HeadersUtil.HEADERS, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/lexers/bycategory/{categoryId}", method=RequestMethod.GET)
+	public ResponseEntity<List<LexerItem>> listLexers(
+			@PathVariable int categoryId) {
+		
+		List<LexerItem> lexers = lexerService.getLexersByCategory(categoryId);
+		
+		return new ResponseEntity<List<LexerItem>>(lexers, HeadersUtil.HEADERS, HttpStatus.OK);
 	}
 }

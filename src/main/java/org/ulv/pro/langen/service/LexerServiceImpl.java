@@ -24,6 +24,13 @@ public class LexerServiceImpl implements LexerService {
 	}
 
 	@Override
+	public List<LexerItem> getLexersByCategory(int categoryId) {
+		LexerItem lexer = new LexerItem();
+		lexer.getCategory().setId(categoryId);
+		return lexerDao.getLexers(lexer);
+	}
+
+	@Override
 	public LexerItem getLexerById(int id) {
 		LexerItem lexer = new LexerItem();
 		lexer.setId(id);

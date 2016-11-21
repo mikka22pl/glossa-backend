@@ -9,6 +9,8 @@ public interface LexerService {
 	
 	List<LexerItem> getLexers(String name, String categoryName);
 	
+	List<LexerItem> getLexersByCategory(int categoryId);
+	
 	LexerItem getLexerById(int id);
 	
 	Integer saveLexer(LexerItem lexer);
