@@ -6,7 +6,7 @@ import org.ulv.pro.langen.model.Word;
 
 public interface WordService {
 
-	List<Word> getWordsByGroup(int languageId, int groupId);
+	List<Word> getWordsByFunction(int languageId, int functionId);
 	
 	List<Word> getWordsTop10(int languageId);
 	
@@ -15,4 +15,6 @@ public interface WordService {
 	List<Word> getWordsWithGroups(Word word);
 	
 	void saveWord(Word word);
+	
+	void assignWord(Word word);
 }

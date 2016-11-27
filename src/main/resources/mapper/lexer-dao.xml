@@ -43,12 +43,13 @@
 		FROM lexers l 
 			<include refid="joinCategory"><property name="alias" value="l"/></include>
 		<trim prefix="WHERE" prefixOverrides="AND |OR ">
-			<if test="id != null"> AND c.id = #{id}</if>
-			<if test="category != null and category.name != null">
-				AND c.lex_name = #{category.name}
-			</if>
+			<if test="id != null"> AND l.id = #{id}</if>
 			<if test="name != null">
 				AND l.lex_name = #{name}
+			</if>
+			<if test="category.id != null"> AND c.id = #{category.id}</if>
+			<if test="category != null and category.name != null">
+				AND c.lex_name = #{category.name}
 			</if>
 		</trim>
 	</select>

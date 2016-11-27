@@ -76,4 +76,22 @@ ALTER TABLE ONLY words_learning
 
 ALTER TABLE ONLY words_learning
     ADD CONSTRAINT words_learning_word_id_fkey FOREIGN KEY (word_id) REFERENCES words(id);
+    
+ALTER TABLE ONLY word_categories
+    ADD CONSTRAINT word_categories_pkey PRIMARY KEY (word_id, category_id);
+
+ALTER TABLE ONLY word_categories
+    ADD CONSTRAINT word_categories_word_id_fkey FOREIGN KEY (word_id) REFERENCES words(id);
+    
+ALTER TABLE ONLY word_categories
+    ADD CONSTRAINT word_categories_category_id_fkey FOREIGN KEY (category_id) REFERENCES lexers(id);
+    
+ALTER TABLE ONLY word_functions
+    ADD CONSTRAINT word_functions_pkey PRIMARY KEY (word_id, function_id);
+
+ALTER TABLE ONLY word_functions
+    ADD CONSTRAINT word_functions_function_id_fkey FOREIGN KEY (function_id) REFERENCES lexers(id);
+    
+ALTER TABLE ONLY word_functions
+    ADD CONSTRAINT word_functions_word_id_fkey FOREIGN KEY (word_id) REFERENCES words(id);
 
