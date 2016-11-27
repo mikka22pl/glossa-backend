@@ -11,10 +11,10 @@ import org.springframework.util.CollectionUtils;
 import org.ulv.pro.langen.dao.SentenceDao;
 import org.ulv.pro.langen.dao.WordDao;
 import org.ulv.pro.langen.model.BuildedSentence;
+import org.ulv.pro.langen.model.LexerLang;
 import org.ulv.pro.langen.model.SentenceStructure;
 import org.ulv.pro.langen.model.SentenceWord;
 import org.ulv.pro.langen.model.Word;
-import org.ulv.pro.langen.model.WordGroup;
 
 @Service(value = "sentenceService")
 public class SentenceServiceImpl implements SentenceService {
@@ -44,7 +44,7 @@ public class SentenceServiceImpl implements SentenceService {
 			for (SentenceStructure structure : structs) {
 				log.info("{}", structure.getOrdering());
 				
-				SentenceWord sentWord = getWord(structure.getGroup(), structure.getOrdering());
+				SentenceWord sentWord = getWord(structure.getFunc(), structure.getOrdering());
 				
 				bsent.getWords().add(sentWord);
 			}
@@ -53,9 +53,9 @@ public class SentenceServiceImpl implements SentenceService {
 		return null;
 	}
 	
-	public SentenceWord getWord(WordGroup group, int ordering) {
+	public SentenceWord getWord(LexerLang func, int ordering) {
 
-		List<Word> words = wordDao.getWordsByGroup(group);
+		List<Word> words = wordDao.getWordsByFunction(func);
 		log.info("words.size()" + words.size());
 		int inx = getRandom(words.size());
 		Word word = words.get(inx);

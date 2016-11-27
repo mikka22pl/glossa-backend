@@ -7,7 +7,7 @@ public class SentenceStructure extends BaseEntity {
 	private Integer languageId;
 	private Integer lessonId;
 	private Integer ordering;
-	private WordGroup group;
+	private LexerLang func;
 	private Integer type;
 
 	public Integer getLanguageId() {
@@ -34,12 +34,12 @@ public class SentenceStructure extends BaseEntity {
 		this.ordering = ordering;
 	}
 
-	public WordGroup getGroup() {
-		return group;
+	public LexerLang getFunc() {
+		return func;
 	}
 
-	public void setGroup(WordGroup group) {
-		this.group = group;
+	public void setFunc(LexerLang func) {
+		this.func = func;
 	}
 
 	public Integer getType() {

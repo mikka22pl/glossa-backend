@@ -137,6 +137,16 @@ CREATE TABLE words_learning (
     last_used timestamp with time zone NOT NULL
 );
 
+CREATE TABLE word_functions (
+    word_id integer NOT NULL,
+    function_id integer NOT NULL
+);
+
+CREATE TABLE word_categories (
+    word_id integer NOT NULL,
+    category_id integer NOT NULL
+);
+
 ALTER TABLE ONLY courses ALTER COLUMN id SET DEFAULT nextval('courses_id_seq'::regclass);
 ALTER TABLE ONLY languages ALTER COLUMN id SET DEFAULT nextval('languages_id_seq'::regclass);
 ALTER TABLE ONLY lessons ALTER COLUMN id SET DEFAULT nextval('lessons_id_seq'::regclass);

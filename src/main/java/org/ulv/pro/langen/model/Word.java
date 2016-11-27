@@ -9,15 +9,17 @@ public class Word extends NamedEntity {
 	
 	private Integer languageId;
 	
-	private List<WordGroup> groups;
+	private List<Lexer> functions;
+	private List<Lexer> categories;
 
 	public Word() {
-		this.groups = new ArrayList<WordGroup>();
+		this(null, null, null);
 	}
 	
-	public Word(int id, String name, int languageId) {
+	public Word(Integer id, String name, Integer languageId) {
 		super(id, name);
-		this.groups = new ArrayList<WordGroup>();
+		this.functions = new ArrayList<Lexer>();
+		this.categories = new ArrayList<Lexer>();
 		this.languageId = languageId;
 	}
 	
@@ -29,12 +31,19 @@ public class Word extends NamedEntity {
 		this.languageId = languageId;
 	}
 
-	public List<WordGroup> getGroups() {
-		return groups;
+	public List<Lexer> getFunctions() {
+		return functions;
 	}
 
-	public void setGroups(List<WordGroup> groups) {
-		this.groups = groups;
+	public void setFunctions(List<Lexer> functions) {
+		this.functions = functions;
 	}
-	
+
+	public List<Lexer> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(List<Lexer> categories) {
+		this.categories = categories;
+	}
 }

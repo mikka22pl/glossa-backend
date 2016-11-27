@@ -5,8 +5,9 @@ import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.ulv.pro.langen.model.LexerLang;
 import org.ulv.pro.langen.model.Word;
-import org.ulv.pro.langen.model.WordGroup;
+import org.ulv.pro.langen.model.WordAssign;
 
 @Component
 public class WordDao {
@@ -14,8 +15,8 @@ public class WordDao {
 	@Autowired
 	private SqlSession sqlSession;
 	
-	public List<Word> getWordsByGroup(WordGroup group) {
-		return sqlSession.selectList("getWordsByGroup", group);
+	public List<Word> getWordsByFunction(LexerLang func) {
+		return sqlSession.selectList("getWordsByFunction", func);
 	}
 	
 	public List<Word> getWords(Word word) {
@@ -32,5 +33,13 @@ public class WordDao {
 	
 	public List<Word> getWordsWithGroups(Word word) {
 		return sqlSession.selectList("getWordsWithGroups", word);
+	}
+	
+	public void assignFunction(WordAssign wordAssign) {
+		sqlSession.insert("assignFunction", wordAssign);
+	}
+	
+	public void assignCategory(WordAssign wordAssign) {
+		sqlSession.insert("assignCategory", wordAssign);
 	}
 }

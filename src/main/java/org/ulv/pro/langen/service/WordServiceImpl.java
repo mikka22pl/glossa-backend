@@ -2,10 +2,14 @@ package org.ulv.pro.langen.service;
 
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ulv.pro.langen.dao.WordDao;
+import org.ulv.pro.langen.model.Lexer;
+import org.ulv.pro.langen.model.LexerLang;
 import org.ulv.pro.langen.model.Word;
+import org.ulv.pro.langen.model.WordAssign;
 import org.ulv.pro.langen.model.WordGroup;
 
 @Service(value = "wordService")
@@ -15,12 +19,12 @@ public class WordServiceImpl implements WordService {
 	private WordDao wordDao;
 	
 	@Override
-	public List<Word> getWordsByGroup(int languageId, int groupId) {
-		WordGroup group = new WordGroup();
-		group.setId(groupId);
-		group.setLanguageId(languageId);
+	public List<Word> getWordsByFunction(int languageId, int functionId) {
+		LexerLang func = new LexerLang();
+		func.setId(functionId);
+		func.setLanguageId(languageId);
 		
-		return wordDao.getWordsByGroup(group);
+		return wordDao.getWordsByFunction(func);
 	}
 
 	@Override
@@ -51,6 +55,23 @@ public class WordServiceImpl implements WordService {
 	@Override
 	public List<Word> getWordsWithGroups(Word word) {
 		return wordDao.getWordsWithGroups(word);
+	}
+
+	@Override
+	public void assignWord(Word word) {
+		WordAssign wordFunction = new WordAssign(word.getId());
+		wordFunction.setLexerId(word.getFunctions().get(0).getId());
+		
+		wordDao.assignFunction(wordFunction);
+		
+		if (CollectionUtils.isNotEmpty(word.getCategories())) {
+			for (Lexer cat : word.getCategories()) {
+				WordAssign wordCategory = new WordAssign(word.getId());
+				wordCategory.setLexerId(cat.getId());
+				
+				wordDao.assignCategory(wordCategory);
+			}
+		}
 	}
 
 }

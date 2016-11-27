@@ -15,16 +15,21 @@
 		</association> -->
 	</resultMap>
 	
-	<resultMap id="wordGroupsMap" type="Word">
+	<resultMap id="wordDeepMap" type="Word">
 		<id     property="id"       	column="id" />
 		<result property="name" 		column="word" />
 		<result property="languageId" 	column="language_id" />
 		<result property="createdDate" 	column="created_date" />
 		
-		<collection property="groups" ofType="WordGroup">
-			<id     property="id"        	column="group_id" />
-			<result property="name" 		column="group_name" />
-			<result property="languageId" 	column="group_language_id" />
+		<collection property="functions" ofType="Lexer">
+			<id     property="id"        	column="fn_id" />
+			<result property="name" 		column="fn_name" />
+			<result property="descr" 		column="fn_descr" />
+		</collection>
+		<collection property="categories" ofType="Lexer">
+			<id     property="id"        	column="cat_id" />
+			<result property="name" 		column="cat_name" />
+			<result property="descr" 		column="cat_descr" />
 		</collection>
 	</resultMap>
 	
@@ -34,14 +39,23 @@
 		${alias}.language_id,
 		${alias}.created_date
 	</sql>
-	<sql id="groupColumns"> 
-		${alias}.id as group_id,
-		${alias}.group_name, 
-		${alias}.language_id as group_language_id
+	<sql id="functionColumns"> 
+		${alias}.id as fn_id,
+		${alias}.lex_name as fn_name, 
+		${alias}.descr as fn_descr
 	</sql>
-	<sql id="joinGroups">
-		JOIN word_group_assign ga ON ga.word_id = ${alias}.id 
-		JOIN word_groups g ON g.id = ga.group_id
+	<sql id="categoryColumns"> 
+		${alias}.id as cat_id,
+		${alias}.lex_name as cat_name, 
+		${alias}.descr as cat_descr
+	</sql>
+	<sql id="joinFunctions">
+		LEFT JOIN word_functions fn ON fn.word_id = ${alias}.id 
+		LEFT JOIN lexers lxfn ON lxfn.id = ${aliasFn}.function_id
+	</sql>
+	<sql id="joinCategories">
+		LEFT JOIN word_categories cat ON cat.word_id = ${alias}.id 
+		LEFT JOIN lexers lxcat ON lxcat.id = ${aliasCat}.category_id
 	</sql>
 	
 	<sql id="whereAll">
@@ -59,13 +73,14 @@
 	</sql>
 			<!-- ,
 			<include refid="groupColumns"><property name="alias" value="g"/></include> -->
-	<select id="getWordsByGroup" parameterType="WordGroup" resultMap="wordMap">
+	<select id="getWordsByFunction" parameterType="LexerLang" resultMap="wordDeepMap">
 		SELECT 
-			<include refid="wordColumns"><property name="alias" value="w"/></include>
+			<include refid="wordColumns"><property name="alias" value="w"/></include>,
+			<include refid="functionColumns"><property name="alias" value="lxfn"/></include>
 		FROM words w
-			<include refid="joinGroups"><property name="alias" value="w"/></include>
-		WHERE g.id = #{id}
-		AND g.language_id = #{languageId}
+			<include refid="joinFunctions"><property name="alias" value="w"/><property name="aliasFn" value="fn"/></include>
+		WHERE fn.id = #{id}
+		AND w.language_id = #{languageId}
 	</select>
 	
 	<select id="getWordsTop10" parameterType="Word" resultMap="wordMap">
@@ -101,20 +116,34 @@
 				AND w.language_id = #{languageId}
 			</if>
 		</trim>
-		ORDER BY word
+		ORDER BY w.word
 	</select>
 	
-	<select id="getWordsWithGroups" parameterType="Word" resultMap="wordGroupsMap">
+	<select id="getWordsWithGroups" parameterType="Word" resultMap="wordDeepMap">
 		SELECT 
 			<include refid="wordColumns"><property name="alias" value="w"/></include>,
-			<include refid="groupColumns"><property name="alias" value="g"/></include>
+			<include refid="functionColumns"><property name="alias" value="lxfn"/></include>,
+			<include refid="categoryColumns"><property name="alias" value="lxcat"/></include>
 		FROM words w
-			<include refid="joinGroups"><property name="alias" value="w"/></include>
+			<include refid="joinFunctions"><property name="alias" value="w"/><property name="aliasFn" value="fn"/></include>
+			<include refid="joinCategories"><property name="alias" value="w"/><property name="aliasCat" value="cat"/></include>
 		<include refid="whereAll"><property name="alias" value="w"/></include>
+		ORDER BY w.word
 	</select>
 	
 	<insert id="addWord" parameterType="Word">
 		INSERT INTO words (word, language_id)
 		VALUES (#{name}, #{languageId})
 	</insert>
+	
+	<insert id="assignFunction" parameterType="WordAssign">
+		INSERT INTO word_functions (word_id, function_id) 
+		VALUES (#{wordId}, #{lexerId})
+	</insert>
+	
+	<insert id="assignCategory" parameterType="WordAssign">
+		INSERT INTO word_categories (word_id, category_id) 
+		VALUES (#{wordId}, #{lexerId})
+	</insert>
+	
 </mapper>

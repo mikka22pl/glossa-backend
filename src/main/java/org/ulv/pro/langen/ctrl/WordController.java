@@ -28,12 +28,12 @@ public class WordController {
 		return new ResponseEntity<List<Word>>(words, HeadersUtil.HEADERS, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/words/{languageId:[\\d]+}/{groupId:[\\d]+}", headers="Accept=application/json")
+	@RequestMapping(value = "/words/{languageId:[\\d]+}/{funcId:[\\d]+}", headers="Accept=application/json")
 	public ResponseEntity<List<Word>> wordsByGroup(
 			@PathVariable int languageId,
-			@PathVariable Integer groupId) {
+			@PathVariable Integer funcId) {
 		
-		List<Word> words = wordService.getWordsByGroup(languageId, groupId);
+		List<Word> words = wordService.getWordsByFunction(languageId, funcId);
 	    
 		return new ResponseEntity<List<Word>>(words, HeadersUtil.HEADERS, HttpStatus.OK);
 	}
@@ -47,11 +47,6 @@ public class WordController {
 		return new ResponseEntity<List<Word>>(words, HeadersUtil.HEADERS, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/addWord", headers="Accept=application/json")
-	public void saveWord(@RequestBody Word word) {
-		wordService.saveWord(word);
-	}
-	
 	@RequestMapping(value = "/words/group/{languageId:[\\d]+}", headers="Accept=application/json")
 	public ResponseEntity<List<Word>> wordsWithGroups(
 			@PathVariable int languageId) {
@@ -62,5 +57,15 @@ public class WordController {
 		List<Word> words = wordService.getWordsWithGroups(word);
 	    
 		return new ResponseEntity<List<Word>>(words, HeadersUtil.HEADERS, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/addWord", headers="Accept=application/json")
+	public void saveWord(@RequestBody Word word) {
+		wordService.saveWord(word);
+	}
+	
+	@RequestMapping(value = "/assignWord", headers="Accept=application/json")
+	public void assignWord(@RequestBody Word word) {
+		wordService.assignWord(word);
 	}
 }
