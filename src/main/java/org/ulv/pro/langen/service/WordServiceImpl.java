@@ -65,6 +65,11 @@ public class WordServiceImpl implements WordService {
 	}
 
 	@Override
+	public Word getWordById(int wordId) {
+		return wordDao.getWordById(wordId);
+	}
+
+	@Override
 	public void assignWord(Word word) {
 		/*WordAssign wordFunction = new WordAssign(word.getId());
 		wordFunction.setLexerId(word.getFunctions().get(0).getId());

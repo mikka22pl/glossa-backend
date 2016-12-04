@@ -15,6 +15,8 @@ public interface WordService {
 	
 	List<Word> getWordsWithGroups(Word word);
 	
+	Word getWordById(int wordId);
+	
 	void removeLexer(WordAssign wordAssign);
 	
 	void saveWord(Word word);

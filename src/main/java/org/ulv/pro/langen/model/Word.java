@@ -5,12 +5,13 @@ import java.util.List;
 
 public class Word extends NamedEntity {
 
-
 	private static final long serialVersionUID = 4590277252470730078L;
 	
 	private Integer languageId;
 	
 	private List<WordCategory> categories;
+	
+	private List<DictionaryEntry> translations;
 
 	public Word() {
 		this(null, null, null);
@@ -20,6 +21,7 @@ public class Word extends NamedEntity {
 		super(id, name);
 		this.categories = new ArrayList<WordCategory>();
 		this.languageId = languageId;
+		this.translations = new ArrayList<DictionaryEntry>();
 	}
 	
 	public Integer getLanguageId() {
@@ -36,5 +38,13 @@ public class Word extends NamedEntity {
 
 	public void setCategories(List<WordCategory> categories) {
 		this.categories = categories;
+	}
+
+	public List<DictionaryEntry> getTranslations() {
+		return translations;
+	}
+
+	public void setTranslations(List<DictionaryEntry> translations) {
+		this.translations = translations;
 	}
 }

@@ -135,6 +135,21 @@
 		ORDER BY w.word
 	</select>
 	
+	<select id="getWordById" parameterType="integer" resultMap="wordDeepMap">
+		SELECT
+			<include refid="wordColumns"><property name="alias" value="w"/></include>,
+			<include refid="functionColumns">
+				<property name="alias" value="lxcat"/>
+				<property name="catAlias" value="cat"/>
+			</include>
+		FROM words w
+			<include refid="joinCategories">
+				<property name="alias" value="w"/>
+				<property name="aliasCat" value="cat"/>
+			</include>
+		WHERE w.id = #{value}
+	</select>
+	
 	<insert id="addWord" parameterType="Word">
 		INSERT INTO words (word, language_id)
 		VALUES (#{name}, #{languageId})
