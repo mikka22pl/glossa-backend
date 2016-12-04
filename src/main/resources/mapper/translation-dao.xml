@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ulv.pro.langen.dao.TranslationDao">
+	
+	<resultMap id="dictMap" type="DictionaryEntry" >
+		<id     property="id"       column="id" />
+		<result property="name" 	column="entry_word" />
+	</resultMap>
+	
+	<select id="getWordTranslations" parameterType="integer" resultMap="dictMap">
+		SELECT d.id, d.entry_word 
+		FROM words_translations t
+		JOIN word_dictionary d ON d.id = t.translation_id
+		JOIN words w ON w.id = t.word_id
+		WHERE w.id = #{value}
+	</select>
+	
+	<select id="getTranslation" parameterType="string" resultMap="dictMap">
+		SELECT d.id, d.entry_word 
+		FROM word_dictionary d
+		WHERE d.entry_word = #{value}
+	</select>
+
+	<insert id="addTranslation" parameterType="DictionaryEntry">
+		<selectKey keyProperty="id" keyColumn="id" order="AFTER" resultType="integer">
+			SELECT currval('word_dictionary_id_seq') as id
+		</selectKey>
+		INSERT INTO word_dictionary (entry_word)
+		VALUES (#{name})
+	</insert>
+	
+	<insert id="assignDictionaryEntryToWord" parameterType="WordTranslationAssign">
+		INSERT INTO words_translations (word_id, translation_id)
+		VALUES(#{wordId}, #{entryId})
+	</insert>
+	
+</mapper>

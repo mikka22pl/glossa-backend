@@ -8,9 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.ulv.pro.langen.model.Translation;
 import org.ulv.pro.langen.model.Word;
 import org.ulv.pro.langen.model.WordAssign;
+import org.ulv.pro.langen.service.TranslationService;
 import org.ulv.pro.langen.service.WordService;
 
 @RestController
@@ -19,6 +22,9 @@ public class WordController {
 
 	@Autowired
 	private WordService wordService;
+	
+	@Autowired
+	private TranslationService translationService;
 	
 	@RequestMapping(value = "/words/{languageId:[\\d]+}", headers="Accept=application/json")
 	public ResponseEntity<List<Word>> words(
@@ -60,6 +66,17 @@ public class WordController {
 		return new ResponseEntity<List<Word>>(words, HeadersUtil.HEADERS, HttpStatus.OK);
 	}
 	
+	@RequestMapping(value = "/word/{wordId:[\\d]+}", headers="Accept=application/json")
+	public ResponseEntity<Word> wordWithGroups(
+			@PathVariable int wordId) {
+		
+		Word word = wordService.getWordById(wordId);
+		
+		word.setTranslations(translationService.getWordTranslations(wordId));
+		
+		return new ResponseEntity<Word>(word, HeadersUtil.HEADERS, HttpStatus.OK);
+	}
+	
 	@RequestMapping(value = "/addWord", headers="Accept=application/json")
 	public void saveWord(@RequestBody Word word) {
 		wordService.saveWord(word);
@@ -73,5 +90,11 @@ public class WordController {
 	@RequestMapping(value = "/removeLexer", headers="Accept=application/json")
 	public void removeLexer(@RequestBody WordAssign wordAssign) {
 		wordService.removeLexer(wordAssign);
+	}
+	
+
+	@RequestMapping(value = "/add/translation", method=RequestMethod.POST, headers="Accept=application/json")
+	public void addTranslation(@RequestBody Translation translation) {
+		translationService.saveTranslation(translation);
 	}
 }

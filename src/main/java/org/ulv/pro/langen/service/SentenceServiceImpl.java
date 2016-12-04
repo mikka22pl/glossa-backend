@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.ulv.pro.langen.dao.SentenceDao;
+import org.ulv.pro.langen.dao.TranslationDao;
 import org.ulv.pro.langen.dao.WordDao;
 import org.ulv.pro.langen.model.BuildedSentence;
 import org.ulv.pro.langen.model.LexerLang;
@@ -27,6 +28,9 @@ public class SentenceServiceImpl implements SentenceService {
 	@Autowired
 	private WordDao wordDao;
 	
+	@Autowired
+	private TranslationDao translationDao;
+	
 	@Override
 	public List<SentenceStructure> getSentenceStructures(SentenceStructure struct) {
 		return sentenceDao.getSentenceStructures(struct);
@@ -42,7 +46,6 @@ public class SentenceServiceImpl implements SentenceService {
 
 			BuildedSentence bsent = new BuildedSentence();
 			for (SentenceStructure structure : structs) {
-				log.info("{}", structure.getOrdering());
 				
 				SentenceWord sentWord = getWord(structure.getFunc(), structure.getOrdering());
 				
@@ -59,6 +62,8 @@ public class SentenceServiceImpl implements SentenceService {
 		log.info("words.size()" + words.size());
 		int inx = getRandom(words.size());
 		Word word = words.get(inx);
+		
+		word.setTranslations(translationDao.getWordTranslations(word.getId()));
 		
 		SentenceWord sword = new SentenceWord();
 		sword.setWord(word);

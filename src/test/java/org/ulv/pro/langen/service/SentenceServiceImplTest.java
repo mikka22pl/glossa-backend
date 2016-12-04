@@ -11,8 +11,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.ulv.pro.langen.dao.TranslationDao;
 import org.ulv.pro.langen.dao.WordDao;
+import org.ulv.pro.langen.model.DictionaryEntry;
 import org.ulv.pro.langen.model.LexerLang;
 import org.ulv.pro.langen.model.SentenceWord;
 import org.ulv.pro.langen.model.Word;
@@ -22,6 +25,9 @@ public class SentenceServiceImplTest {
 
 	@Mock
 	private WordDao wordDao;
+	
+	@Mock
+	private TranslationDao translationDao;
 	
 	@InjectMocks
 	private SentenceServiceImpl service;
@@ -36,8 +42,11 @@ public class SentenceServiceImplTest {
 		LexerLang func = new LexerLang();
 		func.setId(1);
 		
+		List<DictionaryEntry> entries = new ArrayList<>();
+		
 		// given
 		given(wordDao.getWordsByFunction(func)).willReturn(words);
+		given(translationDao.getWordTranslations(Mockito.anyInt())).willReturn(entries);
 		
 		// when
 		SentenceWord sentenceWord = service.getWord(func, 1);

@@ -27,6 +27,10 @@ public class WordDao {
 		return sqlSession.selectList("getWordsTop10", word);
 	}
 	
+	public Word getWordById(int wordId) {
+		return sqlSession.selectOne("getWordById", wordId);
+	}
+	
 	public void addWord(Word word) {
 		sqlSession.insert("addWord", word);
 	}
