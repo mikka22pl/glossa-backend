@@ -97,25 +97,6 @@ CREATE SEQUENCE users_id_seq
     CACHE 1;
 ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
-
-CREATE TABLE word_group_assign (
-    word_id integer NOT NULL,
-    group_id integer NOT NULL
-);
-
-CREATE TABLE word_groups (
-    id integer NOT NULL,
-    group_name character varying(20) NOT NULL,
-    language_id integer NOT NULL
-);
-CREATE SEQUENCE word_groups_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-ALTER SEQUENCE word_groups_id_seq OWNED BY word_groups.id;
-
 CREATE TABLE words (
     id integer NOT NULL,
     word character varying(30) NOT NULL,
@@ -129,17 +110,38 @@ CREATE SEQUENCE words_id_seq
     CACHE 1;
 ALTER SEQUENCE words_id_seq OWNED BY words.id;
 
+CREATE TABLE word_dictionary (
+    id integer NOT NULL,
+    entry_word character varying(50) NOT NULL
+);
+
+CREATE SEQUENCE word_dictionary_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER SEQUENCE word_dictionary_id_seq OWNED BY word_dictionary.id;
+
+
+CREATE TABLE words_translations (
+    id integer NOT NULL,
+    word_id integer NOT NULL,
+    translation_id integer NOT NULL
+);
+CREATE SEQUENCE words_translations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
 
 CREATE TABLE words_learning (
     user_id integer NOT NULL,
     language_id integer NOT NULL,
     word_id integer NOT NULL,
     last_used timestamp with time zone NOT NULL
-);
-
-CREATE TABLE word_functions (
-    word_id integer NOT NULL,
-    function_id integer NOT NULL
 );
 
 CREATE TABLE word_categories (
@@ -155,4 +157,6 @@ ALTER TABLE ONLY sentence_structures ALTER COLUMN id SET DEFAULT nextval('senten
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 ALTER TABLE ONLY word_groups ALTER COLUMN id SET DEFAULT nextval('word_groups_id_seq'::regclass);
 ALTER TABLE ONLY words ALTER COLUMN id SET DEFAULT nextval('words_id_seq'::regclass);
-    
+
+ALTER TABLE ONLY word_dictionary ALTER COLUMN id SET DEFAULT nextval('word_dictionary_id_seq'::regclass);
+ALTER TABLE ONLY words_translations ALTER COLUMN id SET DEFAULT nextval('words_translations_id_seq'::regclass);
