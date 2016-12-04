@@ -35,8 +35,8 @@ public class WordDao {
 		return sqlSession.selectList("getWordsWithGroups", word);
 	}
 	
-	public void assignFunction(WordAssign wordAssign) {
-		sqlSession.insert("assignFunction", wordAssign);
+	public void removeLexer(WordAssign wordAssign) {
+		sqlSession.delete("removeLexer", wordAssign);
 	}
 	
 	public void assignCategory(WordAssign wordAssign) {

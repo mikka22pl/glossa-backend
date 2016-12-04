@@ -5,12 +5,12 @@ import java.util.List;
 
 public class Word extends NamedEntity {
 
+
 	private static final long serialVersionUID = 4590277252470730078L;
 	
 	private Integer languageId;
 	
-	private List<Lexer> functions;
-	private List<Lexer> categories;
+	private List<WordCategory> categories;
 
 	public Word() {
 		this(null, null, null);
@@ -18,8 +18,7 @@ public class Word extends NamedEntity {
 	
 	public Word(Integer id, String name, Integer languageId) {
 		super(id, name);
-		this.functions = new ArrayList<Lexer>();
-		this.categories = new ArrayList<Lexer>();
+		this.categories = new ArrayList<WordCategory>();
 		this.languageId = languageId;
 	}
 	
@@ -31,19 +30,11 @@ public class Word extends NamedEntity {
 		this.languageId = languageId;
 	}
 
-	public List<Lexer> getFunctions() {
-		return functions;
-	}
-
-	public void setFunctions(List<Lexer> functions) {
-		this.functions = functions;
-	}
-
-	public List<Lexer> getCategories() {
+	public List<WordCategory> getCategories() {
 		return categories;
 	}
 
-	public void setCategories(List<Lexer> categories) {
+	public void setCategories(List<WordCategory> categories) {
 		this.categories = categories;
 	}
 }

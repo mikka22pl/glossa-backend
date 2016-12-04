@@ -21,16 +21,18 @@
 		<result property="languageId" 	column="language_id" />
 		<result property="createdDate" 	column="created_date" />
 		
-		<collection property="functions" ofType="Lexer">
+		<collection property="categories" ofType="WordCategory">
 			<id     property="id"        	column="fn_id" />
 			<result property="name" 		column="fn_name" />
 			<result property="descr" 		column="fn_descr" />
+			<result property="categoryType" column="fn_category_type" 
+				typeHandler="org.ulv.pro.langen.handler.WordCategoryTypeHandler"/>
 		</collection>
-		<collection property="categories" ofType="Lexer">
-			<id     property="id"        	column="cat_id" />
-			<result property="name" 		column="cat_name" />
-			<result property="descr" 		column="cat_descr" />
-		</collection>
+<!-- 		<collection property="categories" ofType="Lexer"> -->
+<!-- 			<id     property="id"        	column="cat_id" /> -->
+<!-- 			<result property="name" 		column="cat_name" /> -->
+<!-- 			<result property="descr" 		column="cat_descr" /> -->
+<!-- 		</collection> -->
 	</resultMap>
 	
 	<sql id="wordColumns"> 
@@ -42,7 +44,8 @@
 	<sql id="functionColumns"> 
 		${alias}.id as fn_id,
 		${alias}.lex_name as fn_name, 
-		${alias}.descr as fn_descr
+		${alias}.descr as fn_descr, 
+		${catAlias}.category_type as fn_category_type
 	</sql>
 	<sql id="categoryColumns"> 
 		${alias}.id as cat_id,
@@ -76,10 +79,10 @@
 	<select id="getWordsByFunction" parameterType="LexerLang" resultMap="wordDeepMap">
 		SELECT 
 			<include refid="wordColumns"><property name="alias" value="w"/></include>,
-			<include refid="functionColumns"><property name="alias" value="lxfn"/></include>
+			<include refid="functionColumns"><property name="alias" value="lxcat"/><property name="catAlias" value="cat"/></include>
 		FROM words w
-			<include refid="joinFunctions"><property name="alias" value="w"/><property name="aliasFn" value="fn"/></include>
-		WHERE fn.id = #{id}
+			<include refid="joinCategories"><property name="alias" value="w"/><property name="aliasCat" value="cat"/></include>
+		WHERE lxcat.id = #{id}
 		AND w.language_id = #{languageId}
 	</select>
 	
@@ -122,10 +125,11 @@
 	<select id="getWordsWithGroups" parameterType="Word" resultMap="wordDeepMap">
 		SELECT 
 			<include refid="wordColumns"><property name="alias" value="w"/></include>,
-			<include refid="functionColumns"><property name="alias" value="lxfn"/></include>,
-			<include refid="categoryColumns"><property name="alias" value="lxcat"/></include>
+			<include refid="functionColumns">
+				<property name="alias" value="lxcat"/>
+				<property name="catAlias" value="cat"/>
+			</include>
 		FROM words w
-			<include refid="joinFunctions"><property name="alias" value="w"/><property name="aliasFn" value="fn"/></include>
 			<include refid="joinCategories"><property name="alias" value="w"/><property name="aliasCat" value="cat"/></include>
 		<include refid="whereAll"><property name="alias" value="w"/></include>
 		ORDER BY w.word
@@ -136,14 +140,14 @@
 		VALUES (#{name}, #{languageId})
 	</insert>
 	
-	<insert id="assignFunction" parameterType="WordAssign">
-		INSERT INTO word_functions (word_id, function_id) 
-		VALUES (#{wordId}, #{lexerId})
+	<insert id="assignCategory" parameterType="WordAssign">
+		INSERT INTO word_categories (word_id, category_id, category_type) 
+		VALUES (#{wordId}, #{lexerId}, #{categoryType.code})
 	</insert>
 	
-	<insert id="assignCategory" parameterType="WordAssign">
-		INSERT INTO word_categories (word_id, category_id) 
-		VALUES (#{wordId}, #{lexerId})
-	</insert>
+	<delete id="removeLexer" parameterType="WordAssign">
+		DELETE FROM word_categories 
+		WHERE word_id = #{wordId} AND category_id = #{lexerId}
+	</delete>
 	
 </mapper>

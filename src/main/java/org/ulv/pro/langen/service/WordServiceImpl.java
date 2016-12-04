@@ -10,6 +10,8 @@ import org.ulv.pro.langen.model.Lexer;
 import org.ulv.pro.langen.model.LexerLang;
 import org.ulv.pro.langen.model.Word;
 import org.ulv.pro.langen.model.WordAssign;
+import org.ulv.pro.langen.model.WordCategory;
+import org.ulv.pro.langen.model.WordCategoryType;
 import org.ulv.pro.langen.model.WordGroup;
 
 @Service(value = "wordService")
@@ -53,21 +55,27 @@ public class WordServiceImpl implements WordService {
 	}
 
 	@Override
+	public void removeLexer(WordAssign wordAssign) {
+		wordDao.removeLexer(wordAssign);
+	}
+
+	@Override
 	public List<Word> getWordsWithGroups(Word word) {
 		return wordDao.getWordsWithGroups(word);
 	}
 
 	@Override
 	public void assignWord(Word word) {
-		WordAssign wordFunction = new WordAssign(word.getId());
+		/*WordAssign wordFunction = new WordAssign(word.getId());
 		wordFunction.setLexerId(word.getFunctions().get(0).getId());
 		
-		wordDao.assignFunction(wordFunction);
+		wordDao.assignFunction(wordFunction);*/
 		
 		if (CollectionUtils.isNotEmpty(word.getCategories())) {
-			for (Lexer cat : word.getCategories()) {
+			for (WordCategory cat : word.getCategories()) {
 				WordAssign wordCategory = new WordAssign(word.getId());
 				wordCategory.setLexerId(cat.getId());
+//				wordCategory.setCategoryType(WordCategoryType.byCode(cat.getCategoryType()));
 				
 				wordDao.assignCategory(wordCategory);
 			}
