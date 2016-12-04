@@ -8,13 +8,15 @@ public class WordAssign implements Serializable {
 	
 	private Integer wordId;
 	private Integer lexerId;
+	private WordCategoryType categoryType;
 
 	public WordAssign() {
-		
+		this(null);
 	}
 	
 	public WordAssign(Integer wordId) {
 		this.wordId = wordId;
+		this.categoryType = WordCategoryType.SPEECH_PART;
 	}
 	
 	public Integer getWordId() {
@@ -31,5 +33,13 @@ public class WordAssign implements Serializable {
 
 	public void setLexerId(Integer lexerId) {
 		this.lexerId = lexerId;
+	}
+
+	public WordCategoryType getCategoryType() {
+		return categoryType;
+	}
+
+	public void setCategoryType(WordCategoryType categoryType) {
+		this.categoryType = categoryType;
 	}
 }

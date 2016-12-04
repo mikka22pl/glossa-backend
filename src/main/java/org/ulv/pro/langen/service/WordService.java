@@ -3,6 +3,7 @@ package org.ulv.pro.langen.service;
 import java.util.List;
 
 import org.ulv.pro.langen.model.Word;
+import org.ulv.pro.langen.model.WordAssign;
 
 public interface WordService {
 
@@ -13,6 +14,8 @@ public interface WordService {
 	List<Word> getWords(int languageId);
 	
 	List<Word> getWordsWithGroups(Word word);
+	
+	void removeLexer(WordAssign wordAssign);
 	
 	void saveWord(Word word);
 	

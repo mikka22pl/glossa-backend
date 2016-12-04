@@ -32,11 +32,11 @@ public class SentenceController {
 		return new ResponseEntity<List<SentenceStructure>>(structs, HeadersUtil.HEADERS, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/learn/{languageId}", headers="Accept=application/json")
+	@RequestMapping(value = "/learn/{lessonId}", headers="Accept=application/json")
 	public ResponseEntity<BuildedSentence> sentence(
-			@PathVariable int languageId) {
+			@PathVariable int lessonId) {
 		
-		BuildedSentence bsent = sentenceService.getSentence(languageId);
+		BuildedSentence bsent = sentenceService.getSentence(lessonId);
 	    
 		return new ResponseEntity<BuildedSentence>(bsent, HeadersUtil.HEADERS, HttpStatus.OK);
 	}

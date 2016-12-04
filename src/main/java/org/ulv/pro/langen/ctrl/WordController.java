@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.ulv.pro.langen.model.Word;
+import org.ulv.pro.langen.model.WordAssign;
 import org.ulv.pro.langen.service.WordService;
 
 @RestController
@@ -67,5 +68,10 @@ public class WordController {
 	@RequestMapping(value = "/assignWord", headers="Accept=application/json")
 	public void assignWord(@RequestBody Word word) {
 		wordService.assignWord(word);
+	}
+	
+	@RequestMapping(value = "/removeLexer", headers="Accept=application/json")
+	public void removeLexer(@RequestBody WordAssign wordAssign) {
+		wordService.removeLexer(wordAssign);
 	}
 }

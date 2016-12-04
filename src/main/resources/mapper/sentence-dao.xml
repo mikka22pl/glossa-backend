@@ -9,10 +9,10 @@
 		<result property="ordering" 	column="ordering" />
 		<result property="type" 		column="type" />
 		
-		<association property="group" javaType="WordGroup">
-			<id     property="id"        	column="group_id" />
-			<result property="name" 		column="group_name" />
-			<result property="languageId" 	column="group_language_id" />
+		<association property="func" javaType="LexerLang">
+			<id     property="id"        	column="lex_id" />
+			<result property="name" 		column="lex_name" />
+			<result property="languageId" 	column="lex_language_id" />
 		</association>
 	</resultMap>
 	
@@ -22,12 +22,12 @@
 			s.language_id,
 			s.lesson_id,
 			s.ordering,
-			g.id as group_id,
-			g.group_name,
-			g.language_id as group_language_id,
-			s.type
+			s.type,
+			lex.id as lex_id, 
+			lex.lex_name as lex_name,
+			s.language_id as lex_language_id
 		FROM sentence_structures s
-		JOIN word_groups g ON g.id = s.group_id
+		JOIN lexers lex ON lex.id = s.group_id 
 		<trim prefix="WHERE" prefixOverrides="AND |OR ">
 			<if test="languageId != null">
 				AND s.language_id = #{languageId}
