@@ -34,4 +34,79 @@
 		VALUES(#{wordId}, #{entryId})
 	</insert>
 	
+	<insert id="addSentenceBuilded" parameterType="WordInSentence">
+		INSERT INTO sentence_builded (word_id, word_form_id, ordering, slot_id, translation_id)
+		VALUES (#{word.id}, #{word.conjugatioType.id}, #{ordering}, #{id}, #{translationId})
+	</insert>
+	
+	<insert id="addSentenceTranslation" parameterType="SentenceTranslation">
+		<selectKey keyProperty="translationId" keyColumn="id" order="AFTER" resultType="integer">
+			SELECT currval('sentence_translations_id_seq') as id
+		</selectKey>
+		INSERT INTO sentence_translations (translation)
+		VALUES (#{translation})
+	</insert>
+	
+	<resultMap id="translationOnlyMap" type="SentenceTranslation">
+		<result property="translationId" 	column="id" />
+		<result property="translation" 		column="translation" />
+	</resultMap>
+	
+	<select id="getTranslationOnly" parameterType="SentenceTranslation" resultMap="translationOnlyMap">
+		SELECT st.id, st.translation
+		FROM sentence_translations st
+		WHERE st.translation = #{translation}
+	</select>
+	
+	<!--<resultMap id="sentTranslMap" type="SentenceTranslation">
+		<id 	property="id" 				column="slot_id" />
+		<result property="translationId" 	column="id" />
+		<result property="translation" 		column="translation" />
+		<collection property="sentence" ofType="WordInSentence">
+			<result property="word.id" 			column="word_id" />
+			<result property="ordering" 		column="ordering" />
+		</collection>
+	</resultMap>
+	
+	 <select id="getSentenceTranslation" parameterType="SentenceTranslation" resultMap="sentTranslMap">
+		SELECT sb.word_id, sb.ordering, sb.slot_id, 
+			st.id, st.translation 
+		FROM sentence_translations st 
+		JOIN sentence_builded sb ON st.id = sb.translation_id
+		WHERE
+			<foreach collection="sentence" item="w" separator=" OR ">
+				(sb.word_id = #{w.word.id} AND 
+				<choose>
+					<when test="w.word.conjugatioType.id == null">sb.word_form_id is null AND </when>
+					<otherwise>sb.word_form_id = #{w.word.conjugatioType.id} AND</otherwise>
+				</choose>
+				sb.ordering = #{w.ordering} AND 
+				sb.slot_id = #{id})
+			</foreach>
+		ORDER BY st.id, st.translation, sb.slot_id, sb.ordering
+	</select>-->
+	
+	<resultMap id="sentTranslMap" type="SentenceTranslation">
+		<result property="translationId"  column="translation_id" />
+		<result property="translation" 	  column="translation" />
+	</resultMap>
+	
+	<select id="getSentenceTranslation" parameterType="SentenceTranslation" resultMap="sentTranslMap">
+		SELECT sb.translation_id, t.translation, count(1) 
+		FROM sentence_builded sb
+		JOIN sentence_translations t ON t.id = sb.translation_id
+		WHERE 
+		<foreach collection="sentence" item="w" separator=" OR ">
+			(sb.word_id = #{w.word.id} AND 
+			<choose>
+				<when test="w.word.conjugatioType.id == null">sb.word_form_id is null AND </when>
+				<otherwise>sb.word_form_id = #{w.word.conjugatioType.id} AND</otherwise>
+			</choose>
+			sb.ordering = #{w.ordering})
+		</foreach> 
+		AND sb.slot_id = #{id}
+		GROUP BY sb.translation_id, t.translation
+		HAVING count(1) = #{sentenceSize}
+	</select>
+
 </mapper>

@@ -8,6 +8,12 @@
 		<result property="languageId" 	column="language_id" />
 		<result property="createdDate" 	column="created_date" />
 		
+		<association property="conjugatioType" javaType="LexerItem">
+			<id     property="id"        	column="ct_id" />
+			<result property="name" 		column="ct_name" />
+			<result property="descr" 		column="ct_descr" />
+			<result property="parentId" 	column="ct_parent_id" />
+		</association>
 		<!-- <association property="group" javaType="WordGroup">
 			<id     property="id"        	column="group_id" />
 			<result property="name" 		column="group_name" />
@@ -21,12 +27,24 @@
 		<result property="languageId" 	column="language_id" />
 		<result property="createdDate" 	column="created_date" />
 		
+		<association property="conjugatioType" javaType="LexerItem">
+			<id     property="id"        	column="ct_id" />
+			<result property="name" 		column="ct_name" />
+			<result property="descr" 		column="ct_descr" />
+			<result property="parentId" 	column="ct_parent_id" />
+		</association>
+		
 		<collection property="categories" ofType="WordCategory">
 			<id     property="id"        	column="fn_id" />
 			<result property="name" 		column="fn_name" />
 			<result property="descr" 		column="fn_descr" />
 			<result property="categoryType" column="fn_category_type" 
 				typeHandler="org.ulv.pro.langen.handler.WordCategoryTypeHandler"/>
+		</collection>
+		<collection property="categoriesInclude" ofType="Lexer">
+			<id 	property="id" 		column="catinc_id" />
+			<result property="name" 	column="catinc_name" />
+			<result property="descr" 	column="catinc_descr" />
 		</collection>
 <!-- 		<collection property="categories" ofType="Lexer"> -->
 <!-- 			<id     property="id"        	column="cat_id" /> -->
@@ -47,10 +65,10 @@
 		${alias}.descr as fn_descr, 
 		${catAlias}.category_type as fn_category_type
 	</sql>
-	<sql id="categoryColumns"> 
-		${alias}.id as cat_id,
-		${alias}.lex_name as cat_name, 
-		${alias}.descr as cat_descr
+	<sql id="categoryIncludeCols"> 
+		${alias}.id as cat_incl_id,
+		${alias}.lex_name as cat_incl_name, 
+		${alias}.descr as cat_incl_descr
 	</sql>
 	<sql id="joinFunctions">
 		LEFT JOIN word_functions fn ON fn.word_id = ${alias}.id 
@@ -59,6 +77,37 @@
 	<sql id="joinCategories">
 		LEFT JOIN word_categories cat ON cat.word_id = ${alias}.id 
 		LEFT JOIN lexers lxcat ON lxcat.id = ${aliasCat}.category_id
+	</sql>
+	<sql id="joinCatsInclude">
+		LEFT JOIN word_categories_include catincl ON catincl.word_id = ${alias}.id 
+		LEFT JOIN lexers lxcatincl ON lxcatincl.id = catincl.category_id
+	</sql>
+	<sql id="joinCategoriesInclude">
+		LEFT JOIN word_categories_include wci ON wci.word_id = ${alias}.id AND wci.category_id IN 
+		<foreach collection="categoriesInclude" item="cat" separator="," open="(" close=")">#{cat.id}</foreach>
+		LEFT JOIN word_categories_include wci2 ON wci2.word_id = ${alias}.id AND wci2.category_id NOT IN 
+		<foreach collection="categoriesInclude" item="cat" separator="," open="(" close=")">#{cat.id}</foreach>
+	</sql>
+	
+	<sql id="categoryIncludeWordCols">
+		lxwci.id as catinc_id, 
+		lxwci.lex_name as catinc_name, 
+		lxwci.descr as catinc_descr
+	</sql>
+	<sql id="joinCategoriesIncludeWord">
+		LEFT JOIN word_categories_include wci ON wci.word_id = ${alias}.id
+		LEFT JOIN lexers lxwci ON lxwci.id = wci.category_id
+	</sql>
+	
+	<sql id="conjugatioCols">
+		ct.id as ct_id,
+		ct.lex_name as ct_name,
+		ct.descr as ct_descr,
+		ct.parent_id as ct_parent_id
+	</sql>
+	<sql id="joinConjugatio">
+		LEFT JOIN word_classes wcl ON wcl.word_id = ${alias}.id
+		LEFT JOIN lexers ct ON ct.id = wcl.type_id
 	</sql>
 	
 	<sql id="whereAll">
@@ -76,15 +125,35 @@
 	</sql>
 			<!-- ,
 			<include refid="groupColumns"><property name="alias" value="g"/></include> -->
-	<select id="getWordsByFunction" parameterType="LexerLang" resultMap="wordDeepMap">
+	<select id="getWordsByFunction" parameterType="WordSearch" resultMap="wordDeepMap">
 		SELECT 
 			<include refid="wordColumns"><property name="alias" value="w"/></include>,
-			<include refid="functionColumns"><property name="alias" value="lxcat"/><property name="catAlias" value="cat"/></include>
+			<include refid="functionColumns"><property name="alias" value="lxcat"/><property name="catAlias" value="cat"/></include>,
+			<include refid="conjugatioCols"><property name="alias" value="w" /></include>
 		FROM words w
 			<include refid="joinCategories"><property name="alias" value="w"/><property name="aliasCat" value="cat"/></include>
-		WHERE lxcat.id = #{id}
-		AND w.language_id = #{languageId}
+			<if test="categoriesInclude != null and categoriesInclude.size() > 0">
+				<include refid="joinCategoriesInclude"><property name="alias" value="w"/></include>
+			</if>
+			<include refid="joinConjugatio"><property name="alias" value="w"/></include>
+		WHERE lxcat.id = #{functionWord.id}
+		<if test="functionWord.languageId != null"> AND w.language_id = #{functionWord.languageId}</if>
+		<if test="categoriesInclude != null and categoriesInclude.size() > 0">
+			AND wci2.category_id is null
+		</if>
 	</select>
+	
+	<!-- 
+	select w.id, w.word, lxwci.id, lxwci.lex_name
+FROM words w
+LEFT JOIN word_categories cat ON cat.word_id = w.id 
+LEFT JOIN lexers lxcat ON lxcat.id = cat.category_id
+LEFT JOIN word_categories_include wci ON wci.word_id = w.id AND wci.category_id IN (6,15)
+LEFT JOIN word_categories_include wci2 ON wci2.word_id = w.id AND wci2.category_id NOT IN (6,15) 
+-OR wci2.category_id is null
+LEFT JOIN lexers lxwci ON lxwci.id = wci.category_id
+WHERE lxcat.id = 7 AND wci2.category_id is null
+ -->
 	
 	<select id="getWordsTop10" parameterType="Word" resultMap="wordMap">
 		SELECT 
@@ -128,9 +197,11 @@
 			<include refid="functionColumns">
 				<property name="alias" value="lxcat"/>
 				<property name="catAlias" value="cat"/>
-			</include>
+			</include>,
+			<include refid="conjugatioCols"><property name="alias" value="w" /></include>
 		FROM words w
 			<include refid="joinCategories"><property name="alias" value="w"/><property name="aliasCat" value="cat"/></include>
+			<include refid="joinConjugatio"><property name="alias" value="w"/></include>
 		<include refid="whereAll"><property name="alias" value="w"/></include>
 		ORDER BY w.word
 	</select>
@@ -141,14 +212,71 @@
 			<include refid="functionColumns">
 				<property name="alias" value="lxcat"/>
 				<property name="catAlias" value="cat"/>
-			</include>
+			</include>,
+			<include refid="categoryIncludeWordCols" />,
+			<include refid="conjugatioCols"><property name="alias" value="w" /></include>
 		FROM words w
 			<include refid="joinCategories">
 				<property name="alias" value="w"/>
 				<property name="aliasCat" value="cat"/>
 			</include>
+			<include refid="joinCategoriesIncludeWord">
+				<property name="alias" value="w"/>
+			</include>
+			<include refid="joinConjugatio"><property name="alias" value="w"/></include>
 		WHERE w.id = #{value}
 	</select>
+	
+	<select id="getWordsBySlot" parameterType="TemplateSlot" resultMap="wordMap">
+		SELECT 
+			<include refid="wordColumns"><property name="alias" value="w"/></include>
+		FROM templates t
+		JOIN template_slots ts ON ts.template_id = t.id
+		JOIN word_categories wc ON wc.category_id = ts.group_id
+		JOIN words w ON w.id = wc.word_id
+		WHERE t.id = #{templateId}
+		AND ts.ordering = #{ordering}
+	</select>
+	
+	<select id="getFixedWord" parameterType="integer" resultMap="wordMap">
+		SELECT <include refid="wordColumns"><property name="alias" value="w"/></include>
+		FROM slot_fixed_words sfw 
+		JOIN words w ON w.id = sfw.word_id
+		WHERE sfw.slot_id = #{integer}
+	</select>
+	
+	<resultMap id="fixedWordMap" type="FixedWord">
+		<id     property="id"        	column="id" />
+		<result property="name" 		column="word" />
+		<result property="languageId" 	column="language_id" />
+		<result property="createdDate"  column="created_id" />
+		<result property="slotId" 		column="slot_id" />
+	</resultMap>
+	
+	<select id="getFixedWords" parameterType="integer" resultMap="fixedWordMap">
+		SELECT <include refid="wordColumns"><property name="alias" value="w"/></include>,
+			sfw.slot_id
+		FROM template_slots ts 
+		JOIN slot_fixed_words sfw ON sfw.slot_id = ts.id
+		JOIN words w ON w.id = sfw.word_id
+		WHERE ts.template_id = #{integer}
+	</select>
+	
+	<insert id="addSlotFixedWord" parameterType="FixedWord">
+		INSERT INTO slot_fixed_words (slot_id, word_id)
+		VALUES (#{slotId}, #{id})
+	</insert>
+	
+	<update id="updateSlotFixedWord" parameterType="FixedWord">
+		UPDATE slot_fixed_words SET
+			word_id = #{id}
+		WHERE slot_id = #{slotId}
+	</update>
+	
+	<delete id="removeFixedWords" parameterType="list">
+		DELETE FROM slot_fixed_words 
+		WHERE slot_id IN (<foreach collection="list" item="id" separator=",">#{id}</foreach>)
+	</delete>
 	
 	<insert id="addWord" parameterType="Word">
 		INSERT INTO words (word, language_id)
@@ -164,5 +292,55 @@
 		DELETE FROM word_categories 
 		WHERE word_id = #{wordId} AND category_id = #{lexerId}
 	</delete>
+	
+	<insert id="addWordCategoryInclude" parameterType="WordAssign">
+		INSERT INTO word_categories_include (word_id, category_id)
+		VALUES (#{wordId}, #{lexerId})
+	</insert>
+	
+	<delete id="removeWordCategoryInclude" parameterType="WordAssign">
+		DELETE FROM word_categories_include
+		WHERE word_id=#{wordId} AND category_id=#{lexerId}
+	</delete>
+	
+	<resultMap id="categoryIncludeMap" type="Lexer">
+		<id     property="id"        	column="id" />
+		<result property="name" 		column="name" />
+		<result property="descr"        column="descr" />
+	</resultMap>
+	
+	<select id="getWordCategoriesInclude" parameterType="integer" resultMap="categoryIncludeMap">
+		SELECT 
+			l.id, 
+			l.lex_name as name, 
+			l.descr 
+		FROM words w
+		JOIN word_categories_include wci ON wci.word_id = w.id
+		JOIN lexers l ON l.id = wci.category_id
+		WHERE w.id = #{value}
+	</select>
+	
+	<!-- 
+	w.id
+w.word
+
+ts.ordering
+ts.group_id
+ts.type
+ts.template_id
+ts.connected
+ -->
+	
+	<select id="getBaseWordBySlot" parameterType="TemplateSlot" resultMap="wordMap">
+		SELECT t.id, t.template_name, ts.*, w.*,
+			<include refid="conjugatioCols"><property name="alias" value="w" /></include>
+		FROM templates t
+		JOIN template_slots ts ON ts.template_id = t.id
+		JOIN word_categories wc ON wc.category_id = ts.group_id
+		JOIN words w ON w.id = wc.word_id
+		<include refid="joinConjugatio"><property name="alias" value="w"/></include>
+		where t.id = #{templateId}
+		AND ts.ordering = #{ordering}
+	</select>
 	
 </mapper>

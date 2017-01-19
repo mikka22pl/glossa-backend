@@ -1,5 +1,6 @@
 package org.ulv.pro.langen.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -38,6 +39,45 @@ public class LexerServiceImpl implements LexerService {
 		List<LexerItem> list = lexerDao.getLexers(lexer);
 		
 		return CollectionUtils.isNotEmpty(list) ? list.get(0) : null;
+	}
+
+	@Override
+	public LexerItem getLexerAndChildren(int id) {
+		return lexerDao.getLexerAndChildren(id);
+	}
+
+	@Override
+	public List<LexerItem> getLexerAndChildren(List<Integer> idList) {
+		return lexerDao.getLexerAndChildren(idList);
+	}
+
+	@Override
+	public List<LexerItem> getLexersAndChildren(Integer parentId) {
+		List<LexerItem> lexers = lexerDao.getLexersAndChildren2(parentId);
+		
+		for (LexerItem item : lexers) {
+			for (LexerItem child : item.getChildren()) {
+				List<LexerItem> childChildren = lexerDao.getLexersAndChildren2(child.getId());
+				child.setChildren(childChildren);
+			}
+		}
+		
+		return lexers;
+	}
+
+	@Override
+	public List<Integer> getIdsParentAndChildren(int id) {
+		
+		LexerItem parent = getLexerAndChildren(id);
+		
+		List<Integer> idList = new ArrayList<Integer>();
+		idList.add(parent.getId());
+		if (CollectionUtils.isNotEmpty(parent.getChildren())) {
+			for (LexerItem child : parent.getChildren()) {
+				idList.add(child.getId());
+			}
+		}
+		return idList;
 	}
 
 	@Override

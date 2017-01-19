@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.ulv.pro.langen.model.Lexer;
 import org.ulv.pro.langen.model.LexerItem;
+import org.ulv.pro.langen.model.template.TemplateSlot;
 
 @Component
 public class LexerDao {
@@ -16,6 +17,22 @@ public class LexerDao {
 	
 	public List<LexerItem> getLexers(LexerItem lexer) {
 		return sqlSession.selectList("org.ulv.pro.langen.dao.LexerDAO.getLexers", lexer);
+	}
+	
+	public LexerItem getLexerAndChildren(int id) {
+		return sqlSession.selectOne("org.ulv.pro.langen.dao.LexerDAO.getLexerAndChildren", id);
+	}
+	
+	public List<LexerItem> getLexerAndChildren(List<Integer> idlist) {
+		return sqlSession.selectList("org.ulv.pro.langen.dao.LexerDAO.getLexersAndChildren", idlist);
+	}
+	
+	public List<LexerItem> getLexersAndChildren2(Integer parentId) {
+		return sqlSession.selectList("org.ulv.pro.langen.dao.LexerDAO.getLexersAndChildren2", parentId);
+	}
+	
+	public List<LexerItem> getForms(TemplateSlot slot) {
+		return sqlSession.selectList("org.ulv.pro.langen.dao.LexerDAO.getForms", slot);
 	}
 	
 	public Integer addLexer(LexerItem lexer) {
