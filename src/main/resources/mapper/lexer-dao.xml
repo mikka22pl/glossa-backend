@@ -8,11 +8,38 @@
 		<id     property="id"        	column="id" />
 		<result property="name" 		column="name" />
 		<result property="descr"        column="descr" />
+		<result property="parentId" 	column="parent_id" />
 		<association property="category" javaType="Lexer">
 			<id     property="id"		column="category_id" />
 			<result property="name" 	column="category_name" />
 			<result property="descr"	column="category_descr" />
 		</association>
+	</resultMap>
+	
+	<resultMap id="lexerAndChildrenMap" type="LexerItem">
+		<id     property="id"        	column="id" />
+		<result property="name" 		column="name" />
+		<result property="descr"        column="descr" />
+		<result property="parentId" 	column="parent_id" />
+		<association property="children" javaType="LexerItem">
+			<id     property="id"		column="child_id" />
+			<result property="name" 	column="child_name" />
+			<result property="descr"	column="child_descr" />
+			<result property="parentId" column="child_parent_id" />
+		</association>
+	</resultMap>
+	
+	<resultMap id="lexerAndChildrenMap2" type="LexerItem">
+		<id     property="id"        	column="id" />
+		<result property="name" 		column="name" />
+		<result property="descr"        column="descr" />
+		<result property="parentId" 	column="parent_id" />
+		<collection property="children" javaType="LexerItem" ofType="LexerItem">
+			<id     property="id"		column="child_id" />
+			<result property="name" 	column="child_name" />
+			<result property="descr"	column="child_descr" />
+			<result property="parentId" column="child_parent_id" />
+		</collection>
 	</resultMap>
 	
 	<resultMap id="categoryMap" type="Lexer">
@@ -24,7 +51,14 @@
 	<sql id="lexerColumns"> 
 		${alias}.id,
 		${alias}.lex_name as name, 
-		${alias}.descr
+		${alias}.descr, 
+		${alias}.parent_id
+	</sql>
+	<sql id="childColumns"> 
+		${alias}.id as child_id,
+		${alias}.lex_name as child_name, 
+		${alias}.descr as child_descr, 
+		${alias}.parent_id as child_parent_id
 	</sql>
 	<sql id="categoryColumns"> 
 		${alias}.id as category_id,
@@ -53,6 +87,51 @@
 			</if>
 		</trim>
 	</select>
+	
+	<select id="getLexerAndChildren" parameterType="integer" resultMap="lexerAndChildrenMap">
+		SELECT 
+			<include refid="lexerColumns"><property name="alias" value="l"/></include>,
+			<include refid="childColumns"><property name="alias" value="lch"/></include>
+		FROM lexers l
+		LEFT JOIN lexers lch ON lch.parent_id = l.id
+		WHERE l.id = #{value}
+	</select>
+	
+	<select id="getLexersAndChildren" parameterType="list" resultMap="lexerAndChildrenMap">
+		SELECT 
+			<include refid="lexerColumns"><property name="alias" value="l"/></include>,
+			<include refid="childColumns"><property name="alias" value="lch"/></include>
+		FROM lexers l
+		LEFT JOIN lexers lch ON lch.parent_id = l.id
+		WHERE l.id IN 
+		<foreach collection="list" item="value" separator="," open="(" close=")">
+			#{value}
+		</foreach>
+	</select>
+	
+	<select id="getLexersAndChildren2" parameterType="integer" resultMap="lexerAndChildrenMap2">
+		SELECT 
+			<include refid="lexerColumns"><property name="alias" value="l"/></include>, 
+			<include refid="childColumns"><property name="alias" value="lch"/></include>
+		FROM lexers l
+		LEFT JOIN lexers lch ON lch.parent_id = l.id
+		WHERE 
+			<choose>
+				<when test="value == null">l.parent_id is null</when>
+				<otherwise>l.parent_id = #{value}</otherwise>
+			</choose>
+	</select>
+	
+	<select id="getForms" parameterType="TemplateSlot" resultMap="lexerMap">
+		SELECT 
+			<include refid="lexerColumns"><property name="alias" value="sl"/></include>
+		FROM slot_specified ss
+		JOIN lexers sl ON sl.id = ss.specified_id
+		WHERE ss.template_id = #{templateId}
+		AND ss.ordering = #{ordering}
+	</select>
+	
+	
 	
 	<!-- <select id="findByNameOrDescr" resultMap="lexerMap" parameterType="Lexer" useCache="true">
 		SELECT 

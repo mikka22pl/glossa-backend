@@ -13,6 +13,14 @@ public interface LexerService {
 	
 	LexerItem getLexerById(int id);
 	
+	LexerItem getLexerAndChildren(int id);
+	
+	List<LexerItem> getLexerAndChildren(List<Integer> idList);
+	
+	List<LexerItem> getLexersAndChildren(Integer parentId);
+	
+	List<Integer> getIdsParentAndChildren(int id);
+	
 	Integer saveLexer(LexerItem lexer);
 	
 	List<Lexer> getCategories();

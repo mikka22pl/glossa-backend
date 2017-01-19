@@ -29,6 +29,14 @@ public class LexerController {
 		return new ResponseEntity<List<Lexer>>(categories, HeadersUtil.HEADERS, HttpStatus.OK);
 	}
 	
+	@RequestMapping(value = "/lexers/tree", method=RequestMethod.GET, headers="Accept=application/json")
+	public ResponseEntity<List<LexerItem>> getLexersTree() {
+		
+		List<LexerItem> tree = lexerService.getLexersAndChildren(null);
+		
+		return new ResponseEntity<List<LexerItem>>(tree, HeadersUtil.HEADERS, HttpStatus.OK);
+	}
+	
 	@RequestMapping(value = "/lexer/save", method=RequestMethod.POST, headers="Accept=application/json")
 	public ResponseEntity<Integer> saveLexer(@RequestBody LexerItem lexer) {
 		Integer id = lexerService.saveLexer(lexer);

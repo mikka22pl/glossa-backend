@@ -7,7 +7,13 @@ public class WordInSentence extends BaseEntity {
 	private Word word;
 	private WordGroup group;
 	private Integer ordering;
+	private Integer translationId;
 
+	public WordInSentence() {
+		this.word = new Word();
+		this.group = new WordGroup();
+	}
+	
 	public Word getWord() {
 		return word;
 	}
@@ -30,6 +36,29 @@ public class WordInSentence extends BaseEntity {
 
 	public void setOrdering(Integer ordering) {
 		this.ordering = ordering;
+	}
+
+	public Integer getTranslationId() {
+		return translationId;
+	}
+
+	public void setTranslationId(Integer translationId) {
+		this.translationId = translationId;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("WordInSentence [word=");
+		builder.append(word);
+		builder.append(", group=");
+		builder.append(group);
+		builder.append(", ordering=");
+		builder.append(ordering);
+		builder.append(", translationId=");
+		builder.append(translationId);
+		builder.append("]");
+		return builder.toString();
 	}
 
 }

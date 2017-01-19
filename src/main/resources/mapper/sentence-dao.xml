@@ -2,21 +2,56 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.ulv.pro.langen.dao.SentenceDao">
 	
-	<resultMap id="sentenceMap" type="SentenceStructure">
-		<id     property="id"       	column="id" />
-		<result property="languageId" 	column="language_id" />
-		<result property="lessonId" 	column="lesson_id" />
+	<resultMap id="templateSlotMap" type="TemplateSlot">
+		<id     property="id"       	column="slot_id" />
 		<result property="ordering" 	column="ordering" />
-		<result property="type" 		column="type" />
+		<result property="connected"	column="connected" />
+		<result property="templateId" 	column="template_id" />
 		
-		<association property="func" javaType="LexerLang">
+		<association property="functionWord" javaType="LexerLang">
 			<id     property="id"        	column="lex_id" />
 			<result property="name" 		column="lex_name" />
-			<result property="languageId" 	column="lex_language_id" />
+			<result property="languageId" 		column="language_id" />
 		</association>
+		
+		<association property="type" javaType="LexerItem">
+			<id     property="id"        	column="typelex_id" />
+			<result property="name" 		column="typelex_name" />
+			<result property="descr" 		column="typelex_descr" />
+			<result property="parentId"		column="typelex_parent_id" />
+		</association>
+		
+		<collection property="fixedWords" ofType="FixedWord">
+			<id     property="id"        	column="fw_id" />
+			<result property="name" 		column="fw_word" />
+			<result property="languageId" 	column="fw_language_id" />
+			<result property="createdDate"  column="fw_created_id" />
+			<result property="slotId" 		column="fw_slot_id" />
+		</collection>
 	</resultMap>
 	
-	<select id="getSentenceStrucutres" parameterType="SentenceStructure" resultMap="sentenceMap">
+	<select id="getTemplateSlots" parameterType="integer" resultMap="templateSlotMap">
+		SELECT 
+			ts.id as slot_id, 
+			ts.ordering, 
+			ts.connected, 
+			ts.template_id,
+			t.language_id,
+			lex.id as lex_id, 
+			lex.lex_name as lex_name,
+			typelex.id as typelex_id, 
+			typelex.lex_name as typelex_name,
+			typelex.descr as typelex_descr,
+			typelex.parent_id as typelex_parent_id
+		FROM template_slots ts 
+		JOIN lexers lex ON lex.id = ts.group_id  
+		JOIN templates t ON t.id = ts.template_id
+		JOIN lexers typelex ON typelex.id = ts.type
+		WHERE ts.template_id = #{value}
+		ORDER BY ts.connected, ts.ordering
+	</select>
+	
+	<!-- <select id="getSentenceStrucutres" parameterType="SentenceStructure" resultMap="sentenceMap">
 		SELECT 
 			s.id,
 			s.language_id,
@@ -37,5 +72,140 @@
 			</if>
 		</trim>
 		ORDER BY s.ordering
+	</select> -->
+	
+	<resultMap id="templateMap" type="TemplateSentence">
+		<id     property="id"       	column="id" />
+		<result property="name" 		column="template_name" />
+		<result property="languageId" 	column="language_id" />
+		
+		<collection property="items" resultMap="templateSlotMap" />
+	</resultMap>
+	
+	<select id="getTemplatesByLessonId" parameterType="integer" resultMap="templateMap">
+		SELECT 
+			t.id, 
+			t.template_name,
+			t.language_id
+		FROM templates t
+		JOIN lesson_structures ls ON t.id = ls.structure_id
+		WHERE ls.lesson_id = #{value}
 	</select>
+	
+	<select id="getTemplateAndSlots" parameterType="integer" resultMap="templateMap">
+		SELECT 
+			t.id, 
+			t.template_name,
+			t.language_id,
+			ts.id as slot_id,
+			ts.ordering,
+			ts.group_id,
+			ts.template_id,
+			ts.connected,
+			lex.id as lex_id, 
+			lex.lex_name as lex_name,
+			typelex.id as typelex_id,
+			typelex.lex_name as typelex_name,
+			typelex.descr as typelex_descr,
+			typelex.parent_id as typelex_parent_id,
+			w.id as fw_id, 
+			w.word as fw_word, 
+			w.language_id as fw_language_id, 
+			w.created_date as fw_created_id,
+			sfw.slot_id as fw_slot_id
+		FROM templates t
+		JOIN lesson_structures ls ON t.id = ls.structure_id
+		LEFT JOIN template_slots ts ON ts.template_id = t.id
+		LEFT JOIN lexers lex ON lex.id = ts.group_id  
+		LEFT JOIN lexers typelex ON typelex.id = ts.type  
+		LEFT JOIN slot_fixed_words sfw ON sfw.slot_id = ts.id
+		LEFT JOIN words w ON w.id = sfw.word_id
+		WHERE ls.lesson_id = #{value}
+	</select>
+	
+	<resultMap id="wordMap" type="Word">
+		<id     property="id"       	column="word_id" />
+		<result property="name" 		column="verb_form" />
+	</resultMap>
+	
+	<select id="getVerbForms" parameterType="WordFormSearch" resultMap="wordMap">
+		SELECT vf.word_id, vf.verb_form, vf.word_type_id 
+		FROM verb_forms vf
+		WHERE vf.word_id = #{id}
+		AND form_type_id IN 
+		<foreach collection="formTypes" item="id" separator="," open="(" close=")">#{id}</foreach>
+	</select>
+	
+	<resultMap id="slotSpecifiedMap" type="Lexer">
+		<id     property="id"       	column="id" />
+		<result property="name" 		column="lex_name" />
+		<result property="descr" 		column="descr" />
+	</resultMap>
+	
+	<select id="getSlotSpecified" parameterType="TemplateSlot" resultMap="slotSpecifiedMap">
+		SELECT ss.template_id, ss.ordering, ss.specified_id, 
+			sl.id, sl.lex_name, sl.descr
+		FROM slot_specified ss
+		JOIN lexers sl ON sl.id = ss.specified_id
+		WHERE ss.template_id = #{templateId}
+		AND ss.ordering = #{ordering}
+	</select>
+	
+	<!-- <select id="">
+		SELECT w.id, w.word
+		FROM templates t
+		JOIN template_slots ts ON ts.template_id = t.id
+		JOIN word_categories wc ON wc.category_id = ts.group_id
+		JOIN words w ON w.id = wc.word_id
+		WHERE t.id = #{templateId}
+		AND ts.ordering = #{ordering}
+	</select> -->
+	
+	<resultMap id="formedWordMap" type="FormedWord">
+		<id     property="id"       	column="word_id" />
+		<result property="name" 		column="verb_form" />
+		<result property="verbForm.id" 		column="id" />
+		<result property="verbForm.name" 	column="lex_name" />
+		<result property="verbForm.descr" 	column="descr" />
+	</resultMap>
+	
+	<select id="getFormedWord" parameterType="WordFormSearch" resultMap="formedWordMap">
+		SELECT ss.template_id, ss.ordering, ss.specified_id, 
+			l.id, l.lex_name, l.descr, 
+			vf.word_id, vf.verb_form 
+		FROM verb_forms vf
+		JOIN lexers l ON l.id = vf.form_type_id
+		LEFT JOIN slot_specified ss ON (ss.specified_id = l.id OR ss.specified_id = l.parent_id)
+		  AND ss.template_id = #{templateId} AND ss.ordering = #{ordering}
+		WHERE vf.word_id = #{id}
+		AND vf.form_type_id IN 
+		<foreach collection="formTypes" item="item" separator="," open="(" close=")">#{item}</foreach>
+	</select>
+	
+	<insert id="addTemplateSlot" parameterType="TemplateSlot">
+		INSERT INTO template_slots (ordering, group_id, type, template_id, connected)
+		VALUES (#{ordering}, #{functionWord.id}, #{type.id}, #{templateId}, null)
+	</insert>
+	
+	<update id="updateTemplateSlot" parameterType="TemplateSlot">
+		UPDATE template_slots SET 
+			ordering = #{ordering},
+			group_id = #{functionWord.id},
+			type = #{type.id}
+		WHERE id=#{id}
+	</update>
+	
+	<insert id="addTemplate" parameterType="TemplateSentence">
+		<selectKey keyProperty="id" keyColumn="id" order="AFTER" resultType="integer">
+			SELECT currval('templates_id_seq') as id
+		</selectKey>
+		INSERT INTO templates (template_name, language_id) 
+		VALUES (#{name}, #{languageId})
+	</insert>
+	
+	<update id="updateTemplate" parameterType="TemplateSentence">
+		UPDATE templates SET 
+			template_name = #{name}
+		WHERE id = #{id}
+	</update>
 </mapper>

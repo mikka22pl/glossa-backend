@@ -3,27 +3,18 @@ package org.ulv.pro.langen.model;
 public class SentenceStructure extends BaseEntity {
 
 	private static final long serialVersionUID = 3302033152422268722L;
-	
-	private Integer languageId;
-	private Integer lessonId;
+
+	private Integer structureId;
 	private Integer ordering;
-	private LexerLang func;
+	private LexerLang functionWord;
 	private Integer type;
 
-	public Integer getLanguageId() {
-		return languageId;
+	public Integer getStructureId() {
+		return structureId;
 	}
 
-	public void setLanguageId(Integer languageId) {
-		this.languageId = languageId;
-	}
-
-	public Integer getLessonId() {
-		return lessonId;
-	}
-
-	public void setLessonId(Integer lessonId) {
-		this.lessonId = lessonId;
+	public void setStructureId(Integer structureId) {
+		this.structureId = structureId;
 	}
 
 	public Integer getOrdering() {
@@ -34,12 +25,12 @@ public class SentenceStructure extends BaseEntity {
 		this.ordering = ordering;
 	}
 
-	public LexerLang getFunc() {
-		return func;
+	public LexerLang getFunctionWord() {
+		return functionWord;
 	}
 
-	public void setFunc(LexerLang func) {
-		this.func = func;
+	public void setFunctionWord(LexerLang functionWord) {
+		this.functionWord = functionWord;
 	}
 
 	public Integer getType() {

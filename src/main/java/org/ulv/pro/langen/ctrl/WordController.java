@@ -10,12 +10,29 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.ulv.pro.langen.model.Lexer;
 import org.ulv.pro.langen.model.Translation;
 import org.ulv.pro.langen.model.Word;
 import org.ulv.pro.langen.model.WordAssign;
 import org.ulv.pro.langen.service.TranslationService;
 import org.ulv.pro.langen.service.WordService;
 
+/**
+ * 
+/words/{languageId:[\\d]+}
+/words/{languageId:[\\d]+}/{funcId:[\\d]+}
+/words/top10/{languageId:[\\d]+}
+/words/group/{languageId:[\\d]+}
+/word/{wordId:[\\d]+}
+/addWord
+/assignWord
+/removeLexer
+/add/translation
+/word/include/category
+ * 
+ * @author Michał
+ *
+ */
 @RestController
 @RequestMapping("/glossa")
 public class WordController {
@@ -96,5 +113,18 @@ public class WordController {
 	@RequestMapping(value = "/add/translation", method=RequestMethod.POST, headers="Accept=application/json")
 	public void addTranslation(@RequestBody Translation translation) {
 		translationService.saveTranslation(translation);
+	}
+	
+	@RequestMapping(value = "/word/include/category", method=RequestMethod.POST, headers="Accept=application/json")
+	public ResponseEntity<Lexer> includeCategory(@RequestBody WordAssign wordAssign) {
+		
+		Lexer lexer = wordService.assignCategory(wordAssign);
+		return new ResponseEntity<Lexer>(lexer, HeadersUtil.HEADERS, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/word/exclude/category", method=RequestMethod.POST, headers="Accept=application/json")
+	public void excludeCategory(@RequestBody WordAssign wordAssign) {
+		
+		wordService.removeCategory(wordAssign);
 	}
 }

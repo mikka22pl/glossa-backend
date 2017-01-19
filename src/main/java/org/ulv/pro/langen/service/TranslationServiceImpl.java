@@ -2,14 +2,17 @@ package org.ulv.pro.langen.service;
 
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.ulv.pro.langen.dao.TranslationDao;
 import org.ulv.pro.langen.model.DictionaryEntry;
+import org.ulv.pro.langen.model.SentenceTranslation;
 import org.ulv.pro.langen.model.Translation;
 import org.ulv.pro.langen.model.Word;
+import org.ulv.pro.langen.model.WordInSentence;
 import org.ulv.pro.langen.model.WordTranslationAssign;
 
 @Service(value = "translationService")
@@ -45,6 +48,40 @@ public class TranslationServiceImpl implements TranslationService {
 		}
 	}
 	
+	@Override
+	public void addSentenceTranslation(SentenceTranslation sentenceTranslation) {
+		
+		// if translation exists
+		SentenceTranslation dbTranslation = translationDao.getTranslationOnly(sentenceTranslation);
+		
+		if (dbTranslation == null) {
+			translationDao.addSentenceTranslation(sentenceTranslation);
+			log.info("newId {}", sentenceTranslation.getTranslationId());
+		}
+		int translationId = dbTranslation != null ? dbTranslation.getTranslationId() : sentenceTranslation.getTranslationId();
+		
+		for(WordInSentence wordInSentece : sentenceTranslation.getSentence()) {
+			wordInSentece.setId(sentenceTranslation.getId());
+			wordInSentece.setTranslationId(translationId);
+			
+			translationDao.addSentenceBuilded(wordInSentece);
+		}
+	}
+
+	@Override
+	public SentenceTranslation getSentenceTranslation(
+			SentenceTranslation sentenceTranslation) {
+		log.info("getSentenceTranslation {}", sentenceTranslation.getId());
+		
+		List<SentenceTranslation> list = translationDao.getSentenceTranslation(sentenceTranslation);
+		
+		if (CollectionUtils.isNotEmpty(list)) {
+			return list.get(0);
+		}
+		
+		return null;
+	}
+
 	private void assignToWord(Word word, DictionaryEntry entry) {
 		WordTranslationAssign translation = new WordTranslationAssign();
 		translation.setWordId(word.getId());
